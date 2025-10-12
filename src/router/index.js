@@ -11,22 +11,22 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'Home',
-                redirect: { name: 'Monthly' },
+                name: 'home',
+                redirect: { name: 'monthly' },
             },
             {
                 path: 'monthly',
-                name: 'Monthly',
+                name: 'monthly',
                 component: Monthly,
             },
             {
                 path: 'compass',
-                name: 'Compass',
+                name: 'compass',
                 component: Compass,
             },
             {
                 path: 'danger',
-                name: 'Danger',
+                name: 'danger',
                 component: Danger,
             },
         ],

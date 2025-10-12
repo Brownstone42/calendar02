@@ -42,6 +42,9 @@ export default {
             activeIndex: 0,
         }
     },
+    created() {
+        this.syncFromRoute()
+    },
     computed: {
         underlineStyle() {
             return {
@@ -60,7 +63,12 @@ export default {
 
             this.activeIndex = i
             this.current = tab.key
-            this.$router.push({ name: tab.label })
+            this.$router.push({ name: tab.key })
+        },
+        syncFromRoute() {
+            let idx = this.tabs.findIndex((t) => t.key === this.$route.name)
+            this.activeIndex = idx
+            this.current = this.tabs[idx].key
         },
     },
     watch: {
