@@ -19,6 +19,8 @@
             </span>
         </div>
 
+        <circle-zodiac v-if="sessionStore.birthday"></circle-zodiac>
+
         <div class="status mt-4" v-if="sessionStore.birthday">
             <span>อุปนิสัยจากวันเกิดในเดือนนี้</span>
 
@@ -70,11 +72,13 @@ import calculator from '@/utils/calculator'
 import { mapStores } from 'pinia'
 import { useSessionStore } from '@/stores/session'
 import progressBar from '@/components/common/progressBar.vue'
+import circleZodiac from '@/components/monthly/circleZodiac.vue'
 
 export default {
     name: 'Monthly',
     components: {
         progressBar,
+        circleZodiac,
     },
     data() {
         return {

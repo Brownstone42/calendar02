@@ -54,6 +54,9 @@ export default {
     },
     methods: {
         handleEnter() {
+            if (history.length > 100) {
+                console.log(reset)
+            }
             const session = useSessionStore()
             session.setBirthday(this.birthday)
             console.log('Saved birthday:', this.birthday)

@@ -9,36 +9,67 @@
 
             <svg viewBox="-100 -100 200 200" aria-label="Compass">
                 <g :style="dialStyle">
-                    <image
-                        href="/images/compass1.svg"
-                        x="-100"
-                        y="-100"
-                        width="200"
-                        height="200"
-                        preserveAspectRatio="xMidYMid meet"
-                        draggable="false"
-                        style="pointer-events: none"
+                    <circle
+                        r="98"
+                        fill="rgba(255,255,255,0.02)"
+                        stroke="rgba(255,255,255,0.12)"
+                        stroke-width="2"
                     />
+
+                    <g ref="ticksEl"></g>
+
+                    <g
+                        font-size="12"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        fill="rgba(255,255,255,0.8)"
+                    >
+                        <text
+                            x="0"
+                            y="-74"
+                            transform="rotate(0 0 -74)"
+                            font-size="16"
+                            fill="#ff4858"
+                            font-weight="700"
+                        >
+                            N
+                        </text>
+                        <text
+                            x="74"
+                            y="0"
+                            transform="rotate(90 74 0)"
+                            font-size="16"
+                            font-weight="700"
+                        >
+                            E
+                        </text>
+                        <text
+                            x="0"
+                            y="74"
+                            transform="rotate(180 0 74)"
+                            font-size="16"
+                            font-weight="700"
+                        >
+                            S
+                        </text>
+                        <text
+                            x="-74"
+                            y="0"
+                            transform="rotate(270 -74 0)"
+                            font-size="16"
+                            font-weight="700"
+                        >
+                            W
+                        </text>
+                    </g>
                 </g>
 
-                <!-- กลุ่ม NEEDLE: คงที่ -->
                 <g class="needle-fixed">
-                    <image
-                        href="/images/compass2.svg"
-                        x="-100"
-                        y="-100"
-                        width="200"
-                        height="200"
-                        preserveAspectRatio="xMidYMid meet"
-                        draggable="false"
-                        style="pointer-events: none"
-                    />
-
-                    <!-- จุดกลาง -->
+                    <path d="M 0 -64 L 8 0 L 0 10 L -8 0 Z" fill="#ff4858" />
+                    <path d="M 0 64 L 8 0 L 0 -10 L -8 0 Z" fill="#e8eef6" opacity="0.9" />
                     <circle r="4" fill="#e8eef6" />
                 </g>
 
-                <!-- จุดกลาง/ขอบตกแต่ง -->
                 <circle r="4" fill="#101722" stroke="#c6d0dc" />
             </svg>
         </div>
@@ -91,6 +122,7 @@ export default {
         },
     },
     mounted() {
+        this.buildTicks()
         const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
 
         if (!isMobile) this.showFallback = true
@@ -140,6 +172,29 @@ export default {
             this.favorite = favorite
             this.getDirection(this._lastLoggedDeg)
         },
+        buildTicks() {
+            const g = this.$refs.ticksEl
+            if (!g) return
+            const NS = 'http://www.w3.org/2000/svg'
+            for (let d = 0; d < 360; d += 5) {
+                const len = d % 30 === 0 ? 8 : d % 10 === 0 ? 5 : 2.5
+                const w = d % 30 === 0 ? 1.6 : 1.2
+                const a = (d * Math.PI) / 180
+                const x1 = Math.sin(a) * (90 - len)
+                const y1 = -Math.cos(a) * (90 - len)
+                const x2 = Math.sin(a) * 90
+                const y2 = -Math.cos(a) * 90
+                const tick = document.createElementNS(NS, 'line')
+                tick.setAttribute('x1', x1.toFixed(2))
+                tick.setAttribute('y1', y1.toFixed(2))
+                tick.setAttribute('x2', x2.toFixed(2))
+                tick.setAttribute('y2', y2.toFixed(2))
+                tick.setAttribute('stroke', 'rgba(255,255,255,0.55)')
+                tick.setAttribute('stroke-width', w)
+                g.appendChild(tick)
+            }
+        },
+
         onScreenRotate() {
             if (this.lastSm != null)
                 this.lastSm = this.normalize(this.lastSm + this.getScreenAngle())
@@ -313,7 +368,7 @@ body,
     place-items: center;
     position: relative;
     overflow: hidden;
-    background-image: radial-gradient(1200px 800px at 50% 10%, #a1881852, #14110b28);
+    background-image: radial-gradient(1200px 800px at 50% 10%, #121a22, #0b0f14);
     color: var(--fg);
 }
 .hud {

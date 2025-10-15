@@ -4,6 +4,17 @@ import { toDate } from 'date-fns-tz'
 const ELEMENT_KEYS = ['Wood', 'Fire', 'Earth', 'Metal', 'Water']
 const ROOT_BONUS = { primary: 0.3, secondary: 0.2, tertiary: 0.1 }
 
+const DIRECTION_MAP = {
+    North: 'Water',
+    Northeast: 'Earth',
+    East: 'Wood',
+    Southeast: 'Wood',
+    South: 'Fire',
+    Southwest: 'Earth',
+    West: 'Metal',
+    Northwest: 'Metal',
+}
+
 const ZODIAC_CLASH_MAP = {
     Rat: 'Horse',
     Ox: 'Goat',
@@ -850,6 +861,44 @@ function getRelationScore(score, dayMaster) {
     return result
 }
 
+function getDirectionSuggest(score, favorite, direction) {
+    const element = DIRECTION_MAP[direction]
+    const percent = score[element]
+    let result = null
+
+    if (favorite.includes(element)) {
+        if (percent == 0) {
+            result = 'excellent'
+        } else if (percent <= 5) {
+            result = 'very good'
+        } else if (percent <= 10) {
+            result = 'good'
+        } else if (percent <= 15) {
+            result = 'pretty good'
+        } else if (percent <= 20) {
+            result = 'barely good'
+        } else {
+            result = 'normal'
+        }
+    } else {
+        if (percent > 50) {
+            result = 'terrible'
+        } else if (percent > 45) {
+            result = 'very bad'
+        } else if (percent > 40) {
+            result = 'bad'
+        } else if (percent > 35) {
+            result = 'pretty bad'
+        } else if (percent > 30) {
+            result = 'barely bad'
+        } else {
+            result = 'normal'
+        }
+    }
+
+    return result
+}
+
 export default {
     getPillars,
     getScore,
@@ -862,4 +911,5 @@ export default {
     getFavoriteElement,
     findDanger,
     getRelationScore,
+    getDirectionSuggest,
 }
