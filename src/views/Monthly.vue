@@ -19,7 +19,7 @@
             </span>
         </div>
 
-        <circle-zodiac v-if="sessionStore.birthday"></circle-zodiac>
+        <circle-zodiac v-if="sessionStore.birthday" :pillar="pillar"></circle-zodiac>
 
         <div class="status mt-4" v-if="sessionStore.birthday">
             <span>อุปนิสัยจากวันเกิดในเดือนนี้</span>
@@ -105,6 +105,7 @@ export default {
             },
             dayBlossomCount: 0,
             yearBlossomCount: 0,
+            pillar: {},
         }
     },
     mounted() {
@@ -226,10 +227,19 @@ export default {
             if (dz == yearBlossom) yearBlossomCount++
             if (mz == yearBlossom) yearBlossomCount++
 
+            const pillar = {
+                cyz,
+                cmz,
+                yz,
+                mz,
+                dz,
+            }
+
             this.tranformedScore = tranformedScore
             this.currentTransformedScore = currentTransformScore
             this.dayBlossomCount = dayBlossomCount
             this.yearBlossomCount = yearBlossomCount
+            this.pillar = pillar
         },
     },
 }

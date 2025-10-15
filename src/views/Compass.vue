@@ -50,6 +50,10 @@
             <input v-model.number="sim" type="range" min="0" max="360" step="1" />
             <span>{{ sim }}°</span>
         </div>
+
+        <div v-if="sessionStore.birthday">
+            <h1>{{ result }}</h1>
+        </div>
     </div>
 </template>
 
@@ -87,6 +91,7 @@ export default {
                 transformBox: 'fill-box',
                 transformOrigin: '50% 50%',
                 transform: `rotate(${this.dialAngle}deg)`,
+                zIndex: 10,
             }
         },
     },
@@ -125,8 +130,7 @@ export default {
             if (deg >= 292.5 && deg < 337.5) direction = 'Northwest'
 
             const result = calculator.getDirectionSuggest(this.score, this.favorite, direction)
-
-            console.log(result)
+            this.result = result
         },
         fetchData() {
             const birthday = this.sessionStore.birthday

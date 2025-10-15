@@ -2,9 +2,40 @@
     <div class="zodiac-container">
         <div class="zodiac-wrap">
             <img class="layer base" src="/images/circle1.svg" alt="zodiac animals" />
-            <img class="layer highlight" src="/images/circle2.svg" alt="outer labels" />
-            <img class="layer hour" src="/images/circle3a.svg" alt="outer labels" />
-            <img class="layer minute" src="/images/circle4a.svg" alt="outer labels" />
+
+            <!-- highlight rings -->
+            <img
+                class="layer highlight year"
+                :style="{ transform: rotations.year }"
+                src="/images/circle2.svg"
+                alt="year"
+            />
+            <img
+                class="layer highlight month"
+                :style="{ transform: rotations.month }"
+                src="/images/circle2.svg"
+                alt="month"
+            />
+            <img
+                class="layer highlight day"
+                :style="{ transform: rotations.day }"
+                src="/images/circle2.svg"
+                alt="day"
+            />
+
+            <!-- time rings -->
+            <img
+                class="layer hour"
+                :style="{ transform: rotations.hour }"
+                src="/images/circle3a.svg"
+                alt="hour"
+            />
+            <img
+                class="layer minute"
+                :style="{ transform: rotations.minute }"
+                src="/images/circle4a.svg"
+                alt="minute"
+            />
         </div>
     </div>
 </template>
@@ -12,6 +43,43 @@
 <script>
 export default {
     name: 'circleZodiac',
+    props: {
+        pillar: {
+            type: Object,
+            required: true, // { cyz, cmz, yz, mz, dz }
+        },
+    },
+    computed: {
+        rotations() {
+            // Accept both “Goat” and the misspelled “Goad” just in case.
+            const z2deg = {
+                Rat: 0,
+                Ox: 30,
+                Tiger: 60,
+                Rabbit: 90,
+                Dragon: 120,
+                Snake: 150,
+                Horse: 180,
+                Goat: 210,
+                Monkey: 240,
+                Rooster: 270,
+                Dog: 300,
+                Pig: 330,
+            }
+            const deg = (name) => (name && z2deg[name]) ?? 0
+
+            return {
+                year: `rotate(${deg(this.pillar?.yz)}deg)`,
+                month: `rotate(${deg(this.pillar?.mz)}deg)`,
+                day: `rotate(${deg(this.pillar?.dz)}deg)`,
+                hour: `rotate(${deg(this.pillar?.cyz)}deg)`,
+                minute: `rotate(${deg(this.pillar?.cmz)}deg)`,
+            }
+        },
+    },
+    mounted() {
+        console.log(this.pillar)
+    },
 }
 </script>
 
@@ -33,6 +101,8 @@ export default {
     height: 100%;
     object-fit: contain;
     image-rendering: auto;
+    transform-origin: 50% 50%;
+    transition: transform 500ms ease; /* smooth rotate (optional) */
 }
 .zodiac-wrap .base {
     z-index: 2;
