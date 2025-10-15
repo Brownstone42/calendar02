@@ -97,6 +97,8 @@ div.sub-header {
     display: flex;
     border-bottom: 1px solid #ddd;
     user-select: none;
+    background-color: rgba(134, 25, 25, 0.699);
+    color: white;
 }
 .tab {
     flex: 1 1 0;
@@ -126,8 +128,7 @@ div.sub-header {
     background: currentColor;
 }
 .tab.active {
-    font-weight: 600;
-    color: #3273dc;
+    font-weight: 900;
 }
 .tab:hover {
     background: rgba(0, 0, 0, 0.03);
@@ -144,11 +145,11 @@ div.sub-header {
 }
 .underline {
     position: absolute;
-    bottom: 0;
+    bottom: -1px;
     left: 0;
     width: calc(100% / 3);
     height: 3px;
-    background: #3273dc;
+    background: #524b4b;
     transition: transform 0.3s ease;
 }
 </style>

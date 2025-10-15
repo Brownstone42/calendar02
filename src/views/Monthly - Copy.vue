@@ -6,19 +6,26 @@
                 :key="m.key"
                 :ref="(el) => (monthRefs[i] = el)"
                 class="month"
-                :class="{ current: m.isCurrent }"
+                :class="{
+                    current: m.isCurrent,
+                    locked: isLocked(i), //isLocked(i)
+                }"
                 @click="onMonthClick(i)"
                 role="button"
                 tabindex="0"
             >
                 <span class="label">{{ m.label }}</span>
+                <span v-if="isLocked(i)" class="lock" aria-hidden="true">🔒</span>
+                <!--isLocked(i)-->
             </span>
         </div>
 
         <circle-zodiac v-if="sessionStore.birthday" :pillar="pillar"></circle-zodiac>
 
         <div class="status mt-4" v-if="sessionStore.birthday">
-            <span class="mb-4">เบื้องลึกตัวตน</span>
+            <span>อุปนิสัยจากวันเกิดในเดือนนี้</span>
+
+            <hr />
 
             <div v-for="(val, key) in tranformedScore" :key="key">
                 <div>
@@ -37,9 +44,9 @@
                     />
                 </div>
             </div>
-        </div>
 
-        <div class="status my-4" v-if="sessionStore.birthday">
+            <hr />
+
             <div>
                 <div>
                     <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
@@ -78,6 +85,7 @@ export default {
         return {
             months: [],
             monthRefs: [],
+            baseIndex: -1,
 
             tranformedScore: {},
             currentTransformedScore: {},
@@ -102,34 +110,13 @@ export default {
         }
     },
     mounted() {
-        this.generateMonths() // gen 13 เดือนครั้งเดียวตามที่ทำไว้
-        this.$nextTick(() => {
-            const scroller = this.$refs.scroller
-            if (!scroller) return
-
-            // 1) แน่ใจว่า "ยังไม่" เปิด smooth
-            scroller.classList.remove('smooth')
-
-            // 2) จัดกึ่งกลางครั้งแรกแบบ instant (ไม่เห็นอนิเมชัน)
-            this.centerToIndex(this.currentIndex, 'auto')
-
-            // 3) เปิด smooth สำหรับการใช้งานครั้งถัดไป (คลิก/สกรอล์)
-            // ใช้ RAF ให้แน่ใจว่า layout เซ็ตเสร็จก่อน
-            requestAnimationFrame(() => {
-                scroller.classList.add('smooth')
-            })
-        })
-
+        this.generateMonths()
+        this.baseIndex = this.months.findIndex((m) => m.isCurrent)
+        this.$nextTick(() => this.centerCurrentMonth('auto'))
         window.addEventListener('resize', this.recenter)
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.recenter)
-    },
-    computed: {
-        currentIndex() {
-            return this.months.findIndex((m) => m.isCurrent)
-        },
-        ...mapStores(useSessionStore),
     },
     watch: {
         'sessionStore.birthday': {
@@ -145,61 +132,56 @@ export default {
             },
         },
     },
+    computed: {
+        currentIndex() {
+            return this.months.findIndex((m) => m.isCurrent)
+        },
+        ...mapStores(useSessionStore),
+    },
     methods: {
-        generateMonths(baseDate = new Date()) {
-            const start = subMonths(baseDate, 6)
-            this.months = Array.from({ length: 13 }, (_, i) => {
+        generateMonths(centerDate = new Date()) {
+            const start = subMonths(centerDate, 3)
+            this.months = Array.from({ length: 7 }, (_, i) => {
                 const d = addMonths(start, i)
                 return {
                     date: d,
                     key: format(d, 'yyyy-MM'),
                     label: format(d, 'MMMM'),
-                    isCurrent: isSameMonth(d, baseDate), // จะ true แค่ตัวกลาง
+                    isCurrent: isSameMonth(d, centerDate),
                 }
             })
-
-            // ถ้า lib format/isSameMonth ไม่ตรงเดือนปัจจุบันเป๊ะ ให้บังคับกลางไว้ที่ index=6
-            const mid = 6
-            this.months = this.months.map((m, i) => ({ ...m, isCurrent: i === mid }))
         },
-        centerToIndex(index, behavior = 'smooth') {
+        isLocked(index) {
+            if (this.baseIndex === -1) return false
+            const diff = Math.abs(index - this.baseIndex)
+            return diff === 2 || diff === 3
+        },
+        centerCurrentMonth(behavior = 'smooth', forcedIndex = null) {
             const scroller = this.$refs.scroller
             if (!scroller) return
 
-            // หา current index (เดือนที่ active ตอนนี้)
-            const current = this.currentIndex
+            const idx =
+                forcedIndex != null ? forcedIndex : this.months.findIndex((m) => m.isCurrent)
+            if (idx < 0) return
 
-            // --- HARD LIMIT LOGIC ---
-            // ถ้าอยู่ฝั่งขวาสุด (current+5 หรือ +6) → center current+4
-            if (index === current + 5 || index === current + 6) {
-                index = current + 4
-            }
-            // ถ้าอยู่ฝั่งซ้ายสุด (current-5 หรือ -6) → center current-4
-            else if (index === current - 5 || index === current - 6) {
-                index = current - 4
-            }
-
-            // ป้องกันไม่ให้เกินขอบ array
-            if (index < 0) index = 0
-            if (index >= this.months.length) index = this.months.length - 1
-
-            const el = this.monthRefs[index]
+            const el = this.monthRefs[idx]
             if (!el) return
 
             const elCenter = el.offsetLeft + el.offsetWidth / 2
-            const target = elCenter - scroller.clientWidth / 2
-
+            const target = Math.max(0, elCenter - scroller.clientWidth / 2)
             scroller.scrollTo({ left: target, behavior })
         },
         onMonthClick(idx) {
+            if (this.isLocked(idx)) {
+                alert('Locked')
+                return
+            }
             this.months = this.months.map((m, i) => ({ ...m, isCurrent: i === idx }))
-            this.$nextTick(() => {
-                this.centerToIndex(idx, 'smooth') // ใช้ฟังก์ชันที่เราแก้
-                this.fetchData()
-            })
+            this.$nextTick(() => this.centerCurrentMonth('smooth', idx))
+            this.fetchData()
         },
         recenter() {
-            this.centerToIndex(this.currentIndex, 'auto') // ไม่อนิเมตตอนย่อ/ขยายจอ
+            this.centerCurrentMonth('auto')
         },
         fetchData() {
             const birthday = this.sessionStore.birthday
@@ -283,34 +265,20 @@ div.sub-header {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-
-    /* ลื่นเวลาใช้เมาส์/สัมผัส */
-    scroll-behavior: auto;
-    scroll-snap-type: x mandatory; /* ออปชัน: ช่วยเวลาลากด้วยมือ */
-}
-div.sub-header.smooth {
-    scroll-behavior: smooth;
 }
 div.sub-header::-webkit-scrollbar {
     display: none;
 }
-/* ให้ “มองเห็น 5 ช่อง” — 5 * 20% = 100% */
 div.sub-header .month {
     flex: 0 0 20%;
     max-width: 20%;
     text-align: center;
+    box-sizing: border-box;
     white-space: nowrap;
     user-select: none;
     cursor: pointer;
     position: relative;
-
-    scroll-snap-align: center; /* ออปชัน: snap ให้หยุดกลางตัวเอง */
-    transition: transform 180ms ease; /* เนียนตอน active เปลี่ยน */
-}
-div.sub-header .month.current {
-    font-weight: 700;
-    text-decoration: underline;
-    transform: scale(1.02);
+    color: white;
 }
 div.sub-header .month span {
     color: white;
@@ -329,9 +297,6 @@ div.status {
     display: flex;
     flex-direction: column;
     width: 90%;
-    background-color: gray;
-    padding: 20px;
-    border-radius: 10px;
 }
 div.blossom img {
     margin-right: 10px;
