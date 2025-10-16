@@ -3,6 +3,7 @@ import Home from '@/views/Home.vue'
 import Monthly from '@/views/Monthly.vue'
 import Compass from '@/views/Compass.vue'
 import Danger from '@/views/Danger.vue'
+import Calendar from '@/views/Calendar.vue'
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
                 component: Danger,
             },
         ],
+    },
+    {
+        path: '/calendar',
+        component: Calendar,
+        name: 'calendar',
     },
 ]
 

@@ -1,7 +1,7 @@
 <template>
     <div class="wrap">
         <div class="card" ref="cardEl">
-            <div class="north-dot" />
+            <div class="north-dot"></div>
             <div class="hud">
                 <div class="chip">Compass</div>
                 <div class="heading">{{ Math.round(heading) }}°</div>
@@ -81,6 +81,7 @@ export default {
 
             score: {},
             favorite: [],
+            result: '',
         }
     },
     computed: {
@@ -294,10 +295,12 @@ body,
 }
 .wrap {
     width: min(520px, 92vw);
-    margin: 24px auto;
-    display: grid;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
-    justify-items: center;
+    height: calc(100vh - 190px);
+    align-items: center;
 }
 .title {
     margin: 0;
@@ -307,17 +310,16 @@ body,
 .card {
     width: 100%;
     aspect-ratio: 1/1;
-    background: rgba(255, 255, 255, 0.04);
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    background-color: #f0c081;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.35),
         inset 0 0 40px rgba(255, 255, 255, 0.03);
-    display: grid;
-    place-items: center;
-    position: relative;
-    overflow: hidden;
-    background-image: radial-gradient(1200px 800px at 50% 10%, #a1881852, #14110b28);
     color: var(--fg);
 }
 .hud {
@@ -385,5 +387,11 @@ input[type='range'] {
     font-size: 12px;
     text-align: center;
     max-width: 520px;
+}
+span {
+    color: white;
+}
+h1 {
+    color: white;
 }
 </style>

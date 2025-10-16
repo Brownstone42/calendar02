@@ -1,6 +1,6 @@
 <template>
-    <div class="wrap">
-        <div class="sub-header" ref="scroller">
+    <div>
+        <div class="sub-header" ref="scroller" v-if="sessionStore.birthday">
             <span
                 v-for="(m, i) in months"
                 :key="m.key"
@@ -14,45 +14,54 @@
                 <span class="label">{{ m.label }}</span>
             </span>
         </div>
+        <div class="wrap">
+            <div class="content">
+                <circle-zodiac v-if="sessionStore.birthday" :pillar="pillar"></circle-zodiac>
 
-        <circle-zodiac v-if="sessionStore.birthday" :pillar="pillar"></circle-zodiac>
+                <div class="status mt-4" v-if="sessionStore.birthday">
+                    <span class="mb-4">เบื้องลึกตัวตน</span>
 
-        <div class="status mt-4" v-if="sessionStore.birthday">
-            <span class="mb-4">เบื้องลึกตัวตน</span>
-
-            <div v-for="(val, key) in tranformedScore" :key="key">
-                <div>
-                    <span>
-                        {{ key }}
-                        <span v-if="currentTransformedScore[key] == 1">เพิ่มเล็กน้อย ></span>
-                        <span v-if="currentTransformedScore[key] == 2">เพิ่มปานกลาง >></span>
-                        <span v-if="currentTransformedScore[key] == 3">เพิ่มเยอะ >>></span>
-                        <span v-if="currentTransformedScore[key] == 4">เพิ่มเยอะมาก >>>></span>
-                    </span>
-                    <progress-bar
-                        :percent="(val / 7) * 100"
-                        :duration="900"
-                        :threshold="0.35"
-                        class="my-2"
-                    />
+                    <div v-for="(val, key) in tranformedScore" :key="key">
+                        <div>
+                            <span>
+                                {{ key }}
+                                <span v-if="currentTransformedScore[key] == 1"
+                                    >เพิ่มเล็กน้อย ></span
+                                >
+                                <span v-if="currentTransformedScore[key] == 2"
+                                    >เพิ่มปานกลาง >></span
+                                >
+                                <span v-if="currentTransformedScore[key] == 3">เพิ่มเยอะ >>></span>
+                                <span v-if="currentTransformedScore[key] == 4"
+                                    >เพิ่มเยอะมาก >>>></span
+                                >
+                            </span>
+                            <progress-bar
+                                :percent="(val / 7) * 100"
+                                :duration="900"
+                                :threshold="0.35"
+                                class="my-2"
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="status my-4" v-if="sessionStore.birthday">
-            <div>
-                <div>
-                    <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
-                    <div class="blossom mt-2">
-                        <img
-                            v-for="(blossom, i) in 6"
-                            :key="i"
-                            :src="
-                                i < yearBlossomCount + dayBlossomCount
-                                    ? '/images/blossom-on.svg'
-                                    : '/images/blossom-off.svg'
-                            "
-                        />
+                <div class="status my-4" v-if="sessionStore.birthday">
+                    <div>
+                        <div>
+                            <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
+                            <div class="blossom mt-2">
+                                <img
+                                    v-for="(blossom, i) in 6"
+                                    :key="i"
+                                    :src="
+                                        i < yearBlossomCount + dayBlossomCount
+                                            ? '/images/blossom-on.svg'
+                                            : '/images/blossom-off.svg'
+                                    "
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -268,12 +277,18 @@ export default {
 span {
     color: white;
 }
-div.wrap {
-    padding: 0;
+.wrap {
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 235px); /* or 100% if it's already inside a full-height layout */
+    color: white;
+    overflow-y: auto;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* fills the parent height */
     align-items: center;
-    background-color: rgba(134, 25, 25, 0.699);
 }
 div.sub-header {
     display: flex;

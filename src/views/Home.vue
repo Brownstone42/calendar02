@@ -3,22 +3,23 @@
         <div class="mt-4">
             <birthdayInput v-model="birthday" @enter="handleEnter"></birthdayInput>
         </div>
-    </div>
-    <div class="sub-header mt-2">
-        <span
-            v-for="(t, i) in tabs"
-            :key="t.key"
-            class="tab"
-            :class="{ active: current === t.key }"
-            @click="setActive(i)"
-        >
-            {{ t.label }}
-            <span v-if="i < tabs.length - 1" class="divider">/</span>
-        </span>
 
-        <div class="underline" :style="underlineStyle"></div>
+        <div class="sub-header mt-2">
+            <span
+                v-for="(t, i) in tabs"
+                :key="t.key"
+                class="tab"
+                :class="{ active: current === t.key }"
+                @click="setActive(i)"
+            >
+                {{ t.label }}
+                <span v-if="i < tabs.length - 1" class="divider">/</span>
+            </span>
+
+            <div class="underline" :style="underlineStyle"></div>
+        </div>
+        <router-view class="tab-panel" />
     </div>
-    <router-view class="tab-panel" />
 </template>
 
 <script>
@@ -63,21 +64,28 @@ export default {
         },
         setActive(i) {
             const tab = this.tabs[i]
-
+            if (!tab) return
             this.activeIndex = i
             this.current = tab.key
-            this.$router.push({ name: tab.key })
+            // Push only if it’s different to avoid duplicate navigation warnings
+            if (this.$route.name !== tab.key) {
+                this.$router.push({ name: tab.key })
+            }
         },
         syncFromRoute() {
-            let idx = this.tabs.findIndex((t) => t.key === this.$route.name)
-            this.activeIndex = idx
-            this.current = this.tabs[idx].key
+            const idx = this.tabs.findIndex((t) => t.key === this.$route.name)
+            const safeIdx = idx >= 0 ? idx : 0
+            this.activeIndex = safeIdx
+            this.current = this.tabs[safeIdx].key
         },
     },
     watch: {
         birthday() {
             const session = useSessionStore()
             session.clearBirthday()
+        },
+        '$route.name'() {
+            this.syncFromRoute()
         },
     },
 }
@@ -90,6 +98,7 @@ div.main-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: rgba(134, 25, 25, 0.699);
 }
 div.sub-header {
     position: relative;
@@ -97,7 +106,6 @@ div.sub-header {
     display: flex;
     border-bottom: 1px solid #ddd;
     user-select: none;
-    background-color: rgba(134, 25, 25, 0.699);
     color: white;
 }
 .tab {
@@ -134,7 +142,7 @@ div.sub-header {
     background: rgba(0, 0, 0, 0.03);
 }
 .tab-panel {
-    padding: 12px 0;
+    width: 100%;
 }
 .divider {
     position: absolute;
@@ -147,9 +155,7 @@ div.sub-header {
     position: absolute;
     bottom: -1px;
     left: 0;
-    width: calc(100% / 3);
     height: 3px;
-    background: #524b4b;
     transition: transform 0.3s ease;
 }
 </style>
