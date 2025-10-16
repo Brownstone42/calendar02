@@ -111,24 +111,6 @@ export default {
         }
     },
     mounted() {
-        this.generateMonths() // gen 13 เดือนครั้งเดียวตามที่ทำไว้
-        this.$nextTick(() => {
-            const scroller = this.$refs.scroller
-            if (!scroller) return
-
-            // 1) แน่ใจว่า "ยังไม่" เปิด smooth
-            scroller.classList.remove('smooth')
-
-            // 2) จัดกึ่งกลางครั้งแรกแบบ instant (ไม่เห็นอนิเมชัน)
-            this.centerToIndex(this.currentIndex, 'auto')
-
-            // 3) เปิด smooth สำหรับการใช้งานครั้งถัดไป (คลิก/สกรอล์)
-            // ใช้ RAF ให้แน่ใจว่า layout เซ็ตเสร็จก่อน
-            requestAnimationFrame(() => {
-                scroller.classList.add('smooth')
-            })
-        })
-
         window.addEventListener('resize', this.recenter)
     },
     beforeDestroy() {
@@ -144,12 +126,19 @@ export default {
         'sessionStore.birthday': {
             immediate: true,
             handler(v) {
-                if (!v || !this.sessionStore.birthday) return
+                if (!v) return
+                if (!this.months?.length) this.generateMonths()
 
+                // wait for DOM (months render) then set up scroller & fetch
                 this.$nextTick(() => {
-                    if (!this.months?.length) this.generateMonths()
+                    const scroller = this.$refs.scroller
+                    if (!scroller) return
 
-                    this.$nextTick(() => this.fetchData())
+                    scroller.classList.remove('smooth')
+                    this.centerToIndex(this.currentIndex, 'auto')
+                    requestAnimationFrame(() => scroller.classList.add('smooth'))
+
+                    this.fetchData()
                 })
             },
         },
