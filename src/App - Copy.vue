@@ -15,9 +15,14 @@ export default {
 </script>
 
 <style>
+html,
+body {
+    height: 100%;
+}
 #app {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 @font-face {
     font-family: 'D-DIN Condensed';

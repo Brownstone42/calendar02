@@ -284,6 +284,8 @@ export default {
     box-shadow: inset 0 0 0 1px #e6e7ee;
     height: 48px;
     padding: 0;
+    box-shadow: none;
+    background: transparent;
 }
 
 /* ===== Icon (fixed) ===== */
@@ -371,7 +373,7 @@ export default {
 
 /* focus ring ทั้งกล่อง */
 .birthday:focus-within {
-    box-shadow: inset 0 0 0 2px #0077ff;
+    box-shadow: none;
 }
 
 .birthday .icon-btn {

@@ -1,5 +1,5 @@
 <template>
-    <div class="main-wrap">
+    <div class="home-wrap">
         <div class="mt-4">
             <birthdayInput v-model="birthday" @enter="handleEnter"></birthdayInput>
         </div>
@@ -18,7 +18,8 @@
 
             <div class="underline" :style="underlineStyle"></div>
         </div>
-        <router-view class="tab-panel" />
+
+        <router-view class="router-wrap" />
     </div>
 </template>
 
@@ -92,21 +93,29 @@ export default {
 </script>
 
 <style scoped>
-div.main-wrap {
+.home-wrap {
     margin-top: 4rem;
     padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: rgba(134, 25, 25, 0.699);
+    height: calc(100vh - 64px);
 }
-div.sub-header {
+.router-wrap {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+}
+.sub-header {
     position: relative;
     width: 100%;
     display: flex;
     border-bottom: 1px solid #ddd;
     user-select: none;
     color: white;
+    flex-shrink: 0;
+    height: 50px;
 }
 .tab {
     flex: 1 1 0;
@@ -140,9 +149,6 @@ div.sub-header {
 }
 .tab:hover {
     background: rgba(0, 0, 0, 0.03);
-}
-.tab-panel {
-    width: 100%;
 }
 .divider {
     position: absolute;

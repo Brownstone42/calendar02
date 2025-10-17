@@ -153,6 +153,10 @@ const SEASON_MAP = {
     },
 }
 
+function isClash(sign1, sign2) {
+    return ZODIAC_CLASH_MAP[sign1] === sign2
+}
+
 function isClashUnfavorite(sign1, sign2, element, favorite) {
     if (ZODIAC_CLASH_MAP[sign1] === sign2) {
         if (!favorite.includes(element)) {
@@ -474,15 +478,15 @@ function tranformScore(dayMaster, score) {
 
         if (relationship == 'Self') {
             switch (true) {
-                case score[element] >= 80:
+                case score[element] >= 70:
                     relationshipScore.self1 = 7
                     relationshipScore.self2 = 7
                     break
-                case score[element] >= 70:
+                case score[element] >= 60:
                     relationshipScore.self1 = 7
                     relationshipScore.self2 = 6
                     break
-                case score[element] >= 60:
+                case score[element] >= 55:
                     relationshipScore.self1 = 6
                     relationshipScore.self2 = 5
                     break
@@ -899,6 +903,58 @@ function getDirectionSuggest(score, favorite, direction) {
     return result
 }
 
+function findClash(yz, mz, dz, y) {
+    const startYear = Number(y) - 12
+    const endYear = Number(y) + 12
+    const results = { clash: [], danger: [] }
+
+    for (let year = startYear; year <= endYear; year++) {
+        for (let month = 1; month <= 12; month++) {
+            const current = year + '-' + String(month).padStart(2, '0')
+            const currentFull = current + '-15'
+            const currentPillars = getPillars(currentFull, false, 'male')
+            const currentScore = getCurrentScoreYM(currentPillars)
+            const cyz = currentPillars.yearBranch.animal
+            const cmz = currentPillars.monthBranch.animal
+
+            const clash = {
+                yy: isClash(yz, cyz),
+                ym: isClash(yz, cmz),
+                my: isClash(mz, cyz),
+                mm: isClash(mz, cmz),
+                dy: isClash(dz, cyz),
+                dm: isClash(dz, cmz),
+            }
+            const count = Object.values(clash).filter((v) => v === true).length
+            clash.count = count
+
+            if (count > 0) {
+                const clashObj = {
+                    year: year,
+                    month: month,
+                    clash,
+                }
+
+                results.clash.push(clashObj)
+            }
+            if (count >= 2) {
+                if (Object.values(currentScore).some((v) => v >= 60)) {
+                    const dangerObj = {
+                        year: year,
+                        month: month,
+                        clash,
+                        score: currentScore,
+                    }
+
+                    results.danger.push(dangerObj)
+                }
+            }
+        }
+    }
+
+    return results
+}
+
 export default {
     getPillars,
     getScore,
@@ -912,4 +968,5 @@ export default {
     findDanger,
     getRelationScore,
     getDirectionSuggest,
+    findClash,
 }

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="danger-wrap">
         <div class="sub-header">
             <span
                 v-for="t in tabs"
@@ -12,51 +12,32 @@
             </span>
         </div>
 
-        <div class="wrap" v-if="sessionStore.birthday">
-            <div class="content">
-                <div class="danger px-4">
-                    <div v-if="activeKey == 'prev'">
-                        <div v-for="d in danger.prev" class="mt-3">
-                            <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
-                            <span>{{
-                                getSuggest(d.type, d.currentScore, d.clash).elementSuggest
-                            }}</span>
-                            <span
-                                v-for="s in getSuggest(d.type, d.currentScore, d.clash)
-                                    .zodiacSuggest"
-                            >
-                                {{ s }}
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="activeKey == 'lp0'">
-                        <div v-for="d in danger.lp0" class="mt-3">
-                            <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
-                            <span>{{
-                                getSuggest(d.type, d.currentScore, d.clash).elementSuggest
-                            }}</span>
-                            <span
-                                v-for="s in getSuggest(d.type, d.currentScore, d.clash)
-                                    .zodiacSuggest"
-                            >
-                                {{ s }}
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="activeKey == 'lp1'">
-                        <div v-for="d in danger.lp1" class="mt-3">
-                            <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
-                            <span>{{
-                                getSuggest(d.type, d.currentScore, d.clash).elementSuggest
-                            }}</span>
-                            <span
-                                v-for="s in getSuggest(d.type, d.currentScore, d.clash)
-                                    .zodiacSuggest"
-                            >
-                                {{ s }}
-                            </span>
-                        </div>
-                    </div>
+        <div class="my-content px-4" v-if="sessionStore.birthday">
+            <div v-if="activeKey == 'prev'">
+                <div v-for="d in danger.prev" class="mt-3">
+                    <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
+                    <span>{{ getSuggest(d.type, d.currentScore, d.clash).elementSuggest }}</span>
+                    <span v-for="s in getSuggest(d.type, d.currentScore, d.clash).zodiacSuggest">
+                        {{ s }}
+                    </span>
+                </div>
+            </div>
+            <div v-if="activeKey == 'lp0'">
+                <div v-for="d in danger.lp0" class="mt-3">
+                    <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
+                    <span>{{ getSuggest(d.type, d.currentScore, d.clash).elementSuggest }}</span>
+                    <span v-for="s in getSuggest(d.type, d.currentScore, d.clash).zodiacSuggest">
+                        {{ s }}
+                    </span>
+                </div>
+            </div>
+            <div v-if="activeKey == 'lp1'">
+                <div v-for="d in danger.lp1" class="mt-3">
+                    <span>{{ d.month + ` : ${getType(d.type)}` }}</span>
+                    <span>{{ getSuggest(d.type, d.currentScore, d.clash).elementSuggest }}</span>
+                    <span v-for="s in getSuggest(d.type, d.currentScore, d.clash).zodiacSuggest">
+                        {{ s }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -229,27 +210,23 @@ export default {
 </script>
 
 <style scoped>
-.wrap {
+.danger-wrap {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 235px); /* or 100% if it's already inside a full-height layout */
-    color: white;
-    overflow-y: auto;
-}
-.content {
-    display: flex;
-    flex-direction: column;
-    flex: 1; /* fills the parent height */
 }
 .sub-header {
-    flex-shrink: 0; /* stays fixed height */
+    flex-shrink: 0;
     padding: 10px 0;
     display: flex;
     width: 100%;
+    height: 50px;
 }
-.danger {
-    flex: 1; /* fill remaining height */
-    padding-bottom: 20px;
+.my-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .tab {
     flex: 1 1 0;

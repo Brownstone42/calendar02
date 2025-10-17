@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="monthly-wrap">
         <div class="sub-header" ref="scroller" v-if="sessionStore.birthday">
             <span
                 v-for="(m, i) in months"
@@ -14,56 +14,57 @@
                 <span class="label">{{ m.label }}</span>
             </span>
         </div>
-        <div class="wrap">
-            <div class="content">
-                <circle-zodiac v-if="sessionStore.birthday" :pillar="pillar"></circle-zodiac>
 
-                <div class="status mt-4" v-if="sessionStore.birthday">
-                    <span class="mb-4">เบื้องลึกตัวตน</span>
+        <div class="my-content" v-if="sessionStore.birthday">
+            <circle-zodiac :pillar="pillar"></circle-zodiac>
 
-                    <div v-for="(val, key) in tranformedScore" :key="key">
-                        <div>
-                            <span>
-                                {{ key }}
-                                <span v-if="currentTransformedScore[key] == 1"
-                                    >เพิ่มเล็กน้อย ></span
-                                >
-                                <span v-if="currentTransformedScore[key] == 2"
-                                    >เพิ่มปานกลาง >></span
-                                >
-                                <span v-if="currentTransformedScore[key] == 3">เพิ่มเยอะ >>></span>
-                                <span v-if="currentTransformedScore[key] == 4"
-                                    >เพิ่มเยอะมาก >>>></span
-                                >
-                            </span>
-                            <progress-bar
-                                :percent="(val / 7) * 100"
-                                :duration="900"
-                                :threshold="0.35"
-                                class="my-2"
-                            />
-                        </div>
-                    </div>
-                </div>
+            <div class="status mt-4">
+                <span class="mb-4">เบื้องลึกตัวตน</span>
 
-                <div class="status my-4" v-if="sessionStore.birthday">
+                <div v-for="(val, key) in tranformedScore" :key="key">
                     <div>
-                        <div>
-                            <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
-                            <div class="blossom mt-2">
-                                <img
-                                    v-for="(blossom, i) in 6"
-                                    :key="i"
-                                    :src="
-                                        i < yearBlossomCount + dayBlossomCount
-                                            ? '/images/blossom-on.svg'
-                                            : '/images/blossom-off.svg'
-                                    "
-                                />
-                            </div>
-                        </div>
+                        <span>
+                            {{ key }}
+                            <span v-if="currentTransformedScore[key] == 1">เพิ่มเล็กน้อย ></span>
+                            <span v-if="currentTransformedScore[key] == 2">เพิ่มปานกลาง >></span>
+                            <span v-if="currentTransformedScore[key] == 3">เพิ่มเยอะ >>></span>
+                            <span v-if="currentTransformedScore[key] == 4">เพิ่มเยอะมาก >>>></span>
+                        </span>
+                        <progress-bar
+                            :percent="(val / 7) * 100"
+                            :duration="900"
+                            :threshold="0.35"
+                            class="my-2"
+                        />
                     </div>
                 </div>
+            </div>
+
+            <div class="status mt-4 reveal" ref="status2" :class="{ 'is-visible': reveal.status2 }">
+                <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
+                <div class="blossom mt-2">
+                    <img
+                        v-for="(blossom, i) in 6"
+                        :key="i"
+                        :src="
+                            i < yearBlossomCount + dayBlossomCount
+                                ? '/images/blossom-on.svg'
+                                : '/images/blossom-off.svg'
+                        "
+                    />
+                </div>
+            </div>
+
+            <div class="status mt-4 reveal" ref="status3" :class="{ 'is-visible': reveal.status3 }">
+                <span class="mb-4">ปีชง และ เดือนชง ของคุณ</span>
+                <span class="mb-4"> {{ `ปี ${clashYears.join(', ')}` }} </span>
+                <span> {{ `เดือน ${clashMonths.join(', ')} ของทุกปี` }} </span>
+            </div>
+
+            <div class="status my-4 reveal" ref="status4" :class="{ 'is-visible': reveal.status4 }">
+                <span class="mb-4">เดือนแปรปรวนในรอบ 12 ปี</span>
+                <span class="mb-4"> {{ `อดีต ${dangerPast.join(', ')}` }} </span>
+                <span> {{ `อนาคต ${dangerFuture.join(', ')}` }} </span>
             </div>
         </div>
     </div>
@@ -85,6 +86,8 @@ export default {
     },
     data() {
         return {
+            reveal: { status2: false, status3: false, status4: false },
+
             months: [],
             monthRefs: [],
 
@@ -108,6 +111,11 @@ export default {
             dayBlossomCount: 0,
             yearBlossomCount: 0,
             pillar: {},
+
+            clashYears: [],
+            clashMonths: [],
+            dangerPast: [],
+            dangerFuture: [],
         }
     },
     mounted() {
@@ -129,7 +137,6 @@ export default {
                 if (!v) return
                 if (!this.months?.length) this.generateMonths()
 
-                // wait for DOM (months render) then set up scroller & fetch
                 this.$nextTick(() => {
                     const scroller = this.$refs.scroller
                     if (!scroller) return
@@ -139,11 +146,47 @@ export default {
                     requestAnimationFrame(() => scroller.classList.add('smooth'))
 
                     this.fetchData()
+                    this.$nextTick(this.observeStatuses)
                 })
             },
         },
     },
     methods: {
+        observeStatuses() {
+            const el2 = this.$refs.status2
+            const el3 = this.$refs.status3
+            const el4 = this.$refs.status4
+            if (!el2 && !el3 && !el4) return
+
+            const io = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return
+                        if (entry.target === el2) {
+                            this.reveal.status2 = true
+                            io.unobserve(el2)
+                        }
+                        if (entry.target === el3) {
+                            setTimeout(() => {
+                                this.reveal.status3 = true
+                                io.unobserve(el3)
+                            }, 120)
+                        }
+                        if (entry.target === el4) {
+                            setTimeout(() => {
+                                this.reveal.status4 = true
+                                io.unobserve(el4)
+                            }, 240)
+                        }
+                    })
+                },
+                { threshold: 0.2 },
+            )
+
+            el2 && io.observe(el2)
+            el3 && io.observe(el3)
+            el4 && io.observe(el4)
+        },
         generateMonths(baseDate = new Date()) {
             const start = subMonths(baseDate, 6)
             this.months = Array.from({ length: 13 }, (_, i) => {
@@ -152,32 +195,22 @@ export default {
                     date: d,
                     key: format(d, 'yyyy-MM'),
                     label: format(d, 'MMMM'),
-                    isCurrent: isSameMonth(d, baseDate), // จะ true แค่ตัวกลาง
+                    isCurrent: isSameMonth(d, baseDate),
                 }
             })
-
-            // ถ้า lib format/isSameMonth ไม่ตรงเดือนปัจจุบันเป๊ะ ให้บังคับกลางไว้ที่ index=6
-            const mid = 6
-            this.months = this.months.map((m, i) => ({ ...m, isCurrent: i === mid }))
         },
         centerToIndex(index, behavior = 'smooth') {
             const scroller = this.$refs.scroller
             if (!scroller) return
 
-            // หา current index (เดือนที่ active ตอนนี้)
             const current = this.currentIndex
 
-            // --- HARD LIMIT LOGIC ---
-            // ถ้าอยู่ฝั่งขวาสุด (current+5 หรือ +6) → center current+4
             if (index === current + 5 || index === current + 6) {
                 index = current + 4
-            }
-            // ถ้าอยู่ฝั่งซ้ายสุด (current-5 หรือ -6) → center current-4
-            else if (index === current - 5 || index === current - 6) {
+            } else if (index === current - 5 || index === current - 6) {
                 index = current - 4
             }
 
-            // ป้องกันไม่ให้เกินขอบ array
             if (index < 0) index = 0
             if (index >= this.months.length) index = this.months.length - 1
 
@@ -192,12 +225,12 @@ export default {
         onMonthClick(idx) {
             this.months = this.months.map((m, i) => ({ ...m, isCurrent: i === idx }))
             this.$nextTick(() => {
-                this.centerToIndex(idx, 'smooth') // ใช้ฟังก์ชันที่เราแก้
+                this.centerToIndex(idx, 'smooth')
                 this.fetchData()
             })
         },
         recenter() {
-            this.centerToIndex(this.currentIndex, 'auto') // ไม่อนิเมตตอนย่อ/ขยายจอ
+            this.centerToIndex(this.currentIndex, 'auto')
         },
         fetchData() {
             const birthday = this.sessionStore.birthday
@@ -229,6 +262,47 @@ export default {
             const dayBlossom = this.blossomMap[dz][0]
             const yearBlossom = this.blossomMap[yz][0]
 
+            const clashResult = calculator.findClash(yz, mz, dz, cYear)
+            const clash = clashResult.clash
+
+            let dangerPast = []
+            let dangerFuture = []
+            const danger = clashResult.danger
+
+            danger.forEach(({ year, month }) => {
+                const ym = `${year}-${String(month).padStart(2, '0')}`
+
+                if (ym <= cMonth) {
+                    dangerPast.push(ym)
+                } else {
+                    dangerFuture.push(ym)
+                }
+            })
+
+            console.log(dangerPast)
+            console.log(dangerFuture)
+
+            const clashYears = []
+            const clashMonths = []
+            const seenMonth = new Set()
+            const seenYear = new Set()
+
+            for (const item of clash) {
+                if (
+                    (item.clash.ym || item.clash.mm || item.clash.dm) &&
+                    !seenMonth.has(item.month)
+                ) {
+                    clashMonths.push(item.month)
+                    seenMonth.add(item.month)
+                } else if (
+                    (item.clash.yy || item.clash.my || item.clash.dy) &&
+                    !seenYear.has(item.year)
+                ) {
+                    clashYears.push(item.year)
+                    seenYear.add(item.year)
+                }
+            }
+
             let dayBlossomCount = 0
             let yearBlossomCount = 0
 
@@ -257,49 +331,55 @@ export default {
             this.dayBlossomCount = dayBlossomCount
             this.yearBlossomCount = yearBlossomCount
             this.pillar = pillar
+            this.clashMonths = clashMonths
+            this.clashYears = clashYears
+            this.dangerPast = dangerPast
+            this.dangerFuture = dangerFuture
         },
     },
 }
 </script>
 
 <style scoped>
+.reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    will-change: opacity, transform;
+    transition:
+        opacity 520ms ease,
+        transform 520ms ease;
+}
+.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 span {
     color: white;
 }
-.wrap {
+.monthly-wrap {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 235px); /* or 100% if it's already inside a full-height layout */
-    color: white;
-    overflow-y: auto;
 }
-.content {
-    display: flex;
-    flex-direction: column;
-    flex: 1; /* fills the parent height */
-    align-items: center;
-}
-div.sub-header {
+.sub-header {
     display: flex;
     flex-wrap: nowrap;
     width: 100%;
     padding: 10px 0;
+    flex-shrink: 0;
+    height: 50px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-
-    /* ลื่นเวลาใช้เมาส์/สัมผัส */
     scroll-behavior: auto;
-    scroll-snap-type: x mandatory; /* ออปชัน: ช่วยเวลาลากด้วยมือ */
+    scroll-snap-type: x mandatory;
 }
-div.sub-header.smooth {
+.sub-header.smooth {
     scroll-behavior: smooth;
 }
-div.sub-header::-webkit-scrollbar {
+.sub-header::-webkit-scrollbar {
     display: none;
 }
-/* ให้ “มองเห็น 5 ช่อง” — 5 * 20% = 100% */
-div.sub-header .month {
+.sub-header .month {
     flex: 0 0 20%;
     max-width: 20%;
     text-align: center;
@@ -307,29 +387,31 @@ div.sub-header .month {
     user-select: none;
     cursor: pointer;
     position: relative;
-
-    scroll-snap-align: center; /* ออปชัน: snap ให้หยุดกลางตัวเอง */
-    transition: transform 180ms ease; /* เนียนตอน active เปลี่ยน */
+    scroll-snap-align: center;
+    transition: transform 180ms ease;
 }
-div.sub-header .month.current {
-    font-weight: 700;
-    text-decoration: underline;
+.sub-header .month.current {
     transform: scale(1.02);
 }
-div.sub-header .month span {
-    color: white;
-}
-div.sub-header .month.current {
-    font-weight: 700;
-    text-decoration: underline;
-}
-span.lock {
+.sub-header .month.current::after {
+    content: '';
     position: absolute;
-    top: -5px;
-    font-size: 22px;
-    left: calc(50% - 15px);
+    left: 50%;
+    bottom: -1px;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    border-radius: 2px;
 }
-div.status {
+.my-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.status {
     display: flex;
     flex-direction: column;
     width: 90%;
@@ -337,7 +419,7 @@ div.status {
     padding: 20px;
     border-radius: 10px;
 }
-div.blossom img {
+.blossom img {
     margin-right: 10px;
     width: 10%;
 }

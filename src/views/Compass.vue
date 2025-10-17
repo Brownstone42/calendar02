@@ -1,58 +1,60 @@
 <template>
-    <div class="wrap">
-        <div class="card" ref="cardEl">
-            <div class="north-dot"></div>
-            <div class="hud">
-                <div class="chip">Compass</div>
-                <div class="heading">{{ Math.round(heading) }}°</div>
+    <div class="compass-wrap">
+        <div class="my-content">
+            <div class="card" ref="cardEl">
+                <div class="north-dot"></div>
+                <div class="hud">
+                    <div class="chip">Compass</div>
+                    <div class="heading">{{ Math.round(heading) }}°</div>
+                </div>
+
+                <svg viewBox="-100 -100 200 200" aria-label="Compass">
+                    <g :style="dialStyle">
+                        <image
+                            href="/images/compass1.svg"
+                            x="-100"
+                            y="-100"
+                            width="200"
+                            height="200"
+                            preserveAspectRatio="xMidYMid meet"
+                            draggable="false"
+                            style="pointer-events: none"
+                        />
+                    </g>
+
+                    <!-- กลุ่ม NEEDLE: คงที่ -->
+                    <g class="needle-fixed">
+                        <image
+                            href="/images/compass2.svg"
+                            x="-100"
+                            y="-100"
+                            width="200"
+                            height="200"
+                            preserveAspectRatio="xMidYMid meet"
+                            draggable="false"
+                            style="pointer-events: none"
+                        />
+
+                        <!-- จุดกลาง -->
+                        <circle r="4" fill="#e8eef6" />
+                    </g>
+
+                    <!-- จุดกลาง/ขอบตกแต่ง -->
+                    <circle r="4" fill="#101722" stroke="#c6d0dc" />
+                </svg>
             </div>
 
-            <svg viewBox="-100 -100 200 200" aria-label="Compass">
-                <g :style="dialStyle">
-                    <image
-                        href="/images/compass1.svg"
-                        x="-100"
-                        y="-100"
-                        width="200"
-                        height="200"
-                        preserveAspectRatio="xMidYMid meet"
-                        draggable="false"
-                        style="pointer-events: none"
-                    />
-                </g>
+            <button v-if="!enabled" class="btn" @click="enable">Enable compass</button>
 
-                <!-- กลุ่ม NEEDLE: คงที่ -->
-                <g class="needle-fixed">
-                    <image
-                        href="/images/compass2.svg"
-                        x="-100"
-                        y="-100"
-                        width="200"
-                        height="200"
-                        preserveAspectRatio="xMidYMid meet"
-                        draggable="false"
-                        style="pointer-events: none"
-                    />
+            <div :class="['slider-wrap', { visible: showFallback }]">
+                <span>Desktop demo</span>
+                <input v-model.number="sim" type="range" min="0" max="360" step="1" />
+                <span>{{ sim }}°</span>
+            </div>
 
-                    <!-- จุดกลาง -->
-                    <circle r="4" fill="#e8eef6" />
-                </g>
-
-                <!-- จุดกลาง/ขอบตกแต่ง -->
-                <circle r="4" fill="#101722" stroke="#c6d0dc" />
-            </svg>
-        </div>
-
-        <button v-if="!enabled" class="btn" @click="enable">Enable compass</button>
-
-        <div :class="['slider-wrap', { visible: showFallback }]">
-            <span>Desktop demo</span>
-            <input v-model.number="sim" type="range" min="0" max="360" step="1" />
-            <span>{{ sim }}°</span>
-        </div>
-
-        <div v-if="sessionStore.birthday">
-            <h1>{{ result }}</h1>
+            <div v-if="sessionStore.birthday">
+                <h1>{{ result }}</h1>
+            </div>
         </div>
     </div>
 </template>
@@ -293,13 +295,19 @@ body,
 :host {
     height: 100%;
 }
-.wrap {
+.compass-wrap {
     width: min(520px, 92vw);
     padding: 24px 0;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    height: calc(100vh - 190px);
+    align-items: center;
+}
+.my-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 .title {
