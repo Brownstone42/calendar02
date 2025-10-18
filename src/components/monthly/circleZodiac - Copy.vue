@@ -1,11 +1,9 @@
 <template>
     <div class="zodiac-container">
-        <div class="zodiac-wrap" :class="wrapperClass" :style="wrapperStyle">
+        <div class="zodiac-wrap">
             <img class="layer yinyang" src="/images/circle-1a.svg" alt="yin yang" />
             <img class="layer wheel" src="/images/circle-4a.svg" alt="wheel" />
             <img class="layer animal" src="/images/circle-3a.svg" alt="animal" />
-
-            <!-- highlight: hour/minute (จะถูกบังคับหมุนกลับ 0° ตอน phase-folding) -->
             <img
                 class="layer highlight year"
                 src="/images/circle-2a.svg"
@@ -18,8 +16,6 @@
                 alt="highlight month"
                 :style="{ transform: rotations.minute }"
             />
-
-            <!-- text layers -->
             <img
                 class="layer text"
                 src="/images/circle-y.svg"
@@ -65,7 +61,7 @@
             <img
                 class="layer text"
                 src="/images/circle-ymd.svg"
-                alt="ymd"
+                alt="year month day"
                 :style="{ transform: rotations.year }"
                 v-if="type == 'ymd'"
             />
@@ -80,46 +76,6 @@ export default {
         pillar: {
             type: Object,
             required: true,
-        },
-        active: { type: Boolean, default: true },
-    },
-    data() {
-        return {
-            // phase: 'idle' | 'folding' | 'fading' | 'hidden'
-            phase: this.active ? 'idle' : 'hidden',
-            fadeMs: 420,
-            rotateMs: 500,
-            _firstRun: true,
-        }
-    },
-    watch: {
-        active: {
-            immediate: true,
-            async handler(v) {
-                // ✅ ครั้งแรก: ตั้งค่าทันที ไม่เล่นแอนิเมชัน
-                if (this._firstRun) {
-                    this._firstRun = false
-                    this.phase = v ? 'idle' : 'hidden'
-                    return
-                }
-
-                if (v) {
-                    // กลับมาแสดง: เฟดเข้า (คงเดิม)
-                    this.phase = 'hidden'
-                    await this.$nextTick()
-                    requestAnimationFrame(() => {
-                        this.phase = 'idle'
-                    })
-                } else {
-                    // พับเก็บ: หมุนกลับ 0° → เฟดออก (คงเดิม)
-                    this.phase = 'folding'
-                    await new Promise((r) => setTimeout(r, this.rotateMs + 20))
-                    this.phase = 'fading'
-                    await new Promise((r) => setTimeout(r, this.fadeMs + 20))
-                    this.phase = 'hidden'
-                    this.$emit('folded')
-                }
-            },
         },
     },
     computed: {
@@ -140,16 +96,12 @@ export default {
             }
             const deg = (name) => (name && z2deg[name]) ?? 0
 
-            // 🔧 คงมุม 0° ระหว่าง folding + fading (+ hidden)
-            const forceZero =
-                this.phase === 'folding' || this.phase === 'fading' || this.phase === 'hidden'
-
             return {
                 year: `rotate(${deg(this.pillar?.yz)}deg)`,
                 month: `rotate(${deg(this.pillar?.mz)}deg)`,
                 day: `rotate(${deg(this.pillar?.dz)}deg)`,
-                hour: `rotate(${forceZero ? 0 : deg(this.pillar?.cyz)}deg)`,
-                minute: `rotate(${forceZero ? 0 : deg(this.pillar?.cmz)}deg)`,
+                hour: `rotate(${deg(this.pillar?.cyz)}deg)`,
+                minute: `rotate(${deg(this.pillar?.cmz)}deg)`,
             }
         },
         type() {
@@ -165,22 +117,6 @@ export default {
             else type = 'normal'
 
             return type
-        },
-        wrapperClass() {
-            return {
-                'phase-idle': this.phase === 'idle',
-                'phase-folding': this.phase === 'folding',
-                'phase-fading': this.phase === 'fading',
-                'phase-hidden': this.phase === 'hidden',
-            }
-        },
-        wrapperStyle() {
-            // คุม opacity แบบรวมทั้งวง เพื่อให้เฟดเนียน
-            if (this.phase === 'hidden') return { opacity: 0, pointerEvents: 'none' }
-            if (this.phase === 'fading')
-                return { opacity: 0, transition: `opacity ${this.fadeMs}ms ease` }
-            // idle/folding: แสดง
-            return { opacity: 1, transition: `opacity ${this.fadeMs}ms ease` }
         },
     },
     mounted() {
@@ -204,8 +140,6 @@ export default {
     aspect-ratio: 1 / 1;
     margin: auto;
 }
-
-/* z-index เหมือนเดิม */
 img.yinyang {
     z-index: 2;
 }
@@ -221,8 +155,6 @@ img.highlight {
 img.text {
     z-index: 5;
 }
-
-/* ทรานซิชันการหมุน */
 .zodiac-wrap .layer {
     position: absolute;
     inset: 0;
@@ -231,10 +163,6 @@ img.text {
     object-fit: contain;
     image-rendering: auto;
     transform-origin: 50% 50%;
-    transition: transform 500ms ease; /* ให้ตรงกับ rotateMs */
+    transition: transform 500ms ease;
 }
-
-/* ขณะ folding เราเปลี่ยนเฉพาะ highlight ให้หมุนกลับ 0° (ผ่าน computed แล้ว จึงไม่ต้อง !important) */
-
-/* ขณะ fading/hidden ใช้ opacity จาก wrapperStyle แทน เพื่อให้เฟดทั้งวง */
 </style>

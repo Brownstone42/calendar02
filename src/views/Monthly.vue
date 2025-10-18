@@ -1,6 +1,6 @@
 <template>
     <div class="monthly-wrap">
-        <div class="sub-header" ref="scroller" v-if="sessionStore.birthday">
+        <div class="sub-header" ref="scroller">
             <span
                 v-for="(m, i) in months"
                 :key="m.key"
@@ -10,15 +10,16 @@
                 @click="onMonthClick(i)"
                 role="button"
                 tabindex="0"
+                v-if="sessionStore.birthday"
             >
                 <span class="label">{{ m.label }}</span>
             </span>
         </div>
 
-        <div class="my-content" v-if="sessionStore.birthday">
-            <circle-zodiac :pillar="pillar"></circle-zodiac>
+        <div class="my-content">
+            <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
-            <div class="status mt-4">
+            <div class="status mt-4" v-if="sessionStore.birthday">
                 <span class="mb-4">เบื้องลึกตัวตน</span>
 
                 <div v-for="(val, key) in tranformedScore" :key="key">
@@ -40,7 +41,12 @@
                 </div>
             </div>
 
-            <div class="status mt-4 reveal" ref="status2" :class="{ 'is-visible': reveal.status2 }">
+            <div
+                class="status mt-4 reveal"
+                ref="status2"
+                :class="{ 'is-visible': reveal.status2 }"
+                v-if="sessionStore.birthday"
+            >
                 <span>ความมีเสน่ห์ / ความเจ้าชู้</span>
                 <div class="blossom mt-2">
                     <img
@@ -55,13 +61,23 @@
                 </div>
             </div>
 
-            <div class="status mt-4 reveal" ref="status3" :class="{ 'is-visible': reveal.status3 }">
+            <div
+                class="status mt-4 reveal"
+                ref="status3"
+                :class="{ 'is-visible': reveal.status3 }"
+                v-if="sessionStore.birthday"
+            >
                 <span class="mb-4">ปีชง และ เดือนชง ของคุณ</span>
                 <span class="mb-4"> {{ `ปี ${clashYears.join(', ')}` }} </span>
                 <span> {{ `เดือน ${clashMonths.join(', ')} ของทุกปี` }} </span>
             </div>
 
-            <div class="status my-4 reveal" ref="status4" :class="{ 'is-visible': reveal.status4 }">
+            <div
+                class="status my-4 reveal"
+                ref="status4"
+                :class="{ 'is-visible': reveal.status4 }"
+                v-if="sessionStore.birthday"
+            >
                 <span class="mb-4">เดือนแปรปรวนในรอบ 12 ปี</span>
                 <span class="mb-4"> {{ `อดีต ${dangerPast.join(', ')}` }} </span>
                 <span> {{ `อนาคต ${dangerFuture.join(', ')}` }} </span>
