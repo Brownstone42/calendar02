@@ -19,7 +19,7 @@
         <div class="my-content">
             <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
-            <div class="status mt-6" v-if="sessionStore.birthday">
+            <div class="status mt-8" v-if="sessionStore.birthday">
                 <img src="/images/status-1a.png" alt="status 1a" class="status-1" />
                 <span class="mb-4">เบื้องลึกตัวตน</span>
 
@@ -450,5 +450,8 @@ span {
     width: 100px;
     top: -50px;
     right: -40px;
+}
+.mt-8 {
+    margin-top: 5rem;
 }
 </style>
