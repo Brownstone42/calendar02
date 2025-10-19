@@ -20,6 +20,7 @@
             <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
             <div class="status mt-4" v-if="sessionStore.birthday">
+                <img src="/images/status-1a.png" alt="status 1a" class="status-1" />
                 <span class="mb-4">เบื้องลึกตัวตน</span>
 
                 <div v-for="(val, key) in tranformedScore" :key="key">
@@ -35,7 +36,7 @@
                             :percent="(val / 7) * 100"
                             :duration="900"
                             :threshold="0.35"
-                            class="my-2"
+                            class="progress-bar"
                         />
                     </div>
                 </div>
@@ -370,7 +371,7 @@ export default {
     transform: translateY(0);
 }
 span {
-    color: white;
+    color: #464646;
 }
 .monthly-wrap {
     display: flex;
@@ -417,7 +418,7 @@ span {
     transform: translateX(-50%);
     width: 100%;
     height: 2px;
-    background-color: white;
+    background-color: #464646;
     border-radius: 2px;
 }
 .my-content {
@@ -430,13 +431,27 @@ span {
 .status {
     display: flex;
     flex-direction: column;
-    width: 90%;
-    background-color: gray;
+    width: 80%;
+    background-color: white;
     padding: 20px;
     border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* เพิ่มเงาให้นูน */
+    position: relative;
+}
+.status:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 .blossom img {
     margin-right: 10px;
     width: 10%;
+}
+.progress-bar {
+    margin-bottom: 10px;
+}
+.status-1 {
+    position: absolute;
+    width: 100px;
+    top: -50px;
+    right: -40px;
 }
 </style>

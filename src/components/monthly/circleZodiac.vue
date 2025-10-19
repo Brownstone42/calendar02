@@ -1,73 +1,31 @@
 <template>
     <div class="zodiac-container">
         <div class="zodiac-wrap" :class="wrapperClass" :style="wrapperStyle">
-            <img class="layer yinyang" src="/images/circle-1a.svg" alt="yin yang" />
-            <img class="layer wheel" src="/images/circle-4a.svg" alt="wheel" />
-            <img class="layer animal" src="/images/circle-3a.svg" alt="animal" />
-
-            <!-- highlight: hour/minute (จะถูกบังคับหมุนกลับ 0° ตอน phase-folding) -->
+            <img class="layer background" src="/images/circle-4b.png" alt="background" />
             <img
-                class="layer highlight year"
-                src="/images/circle-2a.svg"
-                alt="highlight year"
-                :style="{ transform: rotations.hour }"
-            />
-            <img
-                class="layer highlight month"
-                src="/images/circle-2a.svg"
-                alt="highlight month"
+                class="layer wheel"
+                src="/images/circle-1b.png"
+                alt="wheel"
                 :style="{ transform: rotations.minute }"
             />
-
-            <!-- text layers -->
+            <img class="layer inner" src="/images/circle-2b.png" alt="inner" />
             <img
-                class="layer text"
-                src="/images/circle-y.svg"
-                alt="year"
+                class="layer highlight"
+                src="/images/circle-3b.png"
+                alt="highlight year"
                 :style="{ transform: rotations.year }"
-                v-if="type == 'normal' || type == 'md'"
             />
             <img
-                class="layer text"
-                src="/images/circle-m.svg"
-                alt="month"
+                class="layer highlight"
+                src="/images/circle-3b.png"
+                alt="highlight month"
                 :style="{ transform: rotations.month }"
-                v-if="type == 'normal' || type == 'yd'"
             />
             <img
-                class="layer text"
-                src="/images/circle-d.svg"
-                alt="day"
+                class="layer highlight"
+                src="/images/circle-3b.png"
+                alt="highlight day"
                 :style="{ transform: rotations.day }"
-                v-if="type == 'normal' || type == 'ym'"
-            />
-            <img
-                class="layer text"
-                src="/images/circle-ym.svg"
-                alt="year month"
-                :style="{ transform: rotations.year }"
-                v-if="type == 'ym'"
-            />
-            <img
-                class="layer text"
-                src="/images/circle-yd.svg"
-                alt="year day"
-                :style="{ transform: rotations.year }"
-                v-if="type == 'yd'"
-            />
-            <img
-                class="layer text"
-                src="/images/circle-md.svg"
-                alt="month day"
-                :style="{ transform: rotations.month }"
-                v-if="type == 'md'"
-            />
-            <img
-                class="layer text"
-                src="/images/circle-ymd.svg"
-                alt="ymd"
-                :style="{ transform: rotations.year }"
-                v-if="type == 'ymd'"
             />
         </div>
     </div>
@@ -105,19 +63,17 @@ export default {
 
                 if (v) {
                     // กลับมาแสดง: เฟดเข้า (คงเดิม)
-                    this.phase = 'hidden'
+                    this.phase = 'faded'
                     await this.$nextTick()
                     requestAnimationFrame(() => {
                         this.phase = 'idle'
                     })
                 } else {
-                    // พับเก็บ: หมุนกลับ 0° → เฟดออก (คงเดิม)
+                    // พับเก็บ: หมุนกลับ 0° → ค้างที่ opacity 0.2
                     this.phase = 'folding'
                     await new Promise((r) => setTimeout(r, this.rotateMs + 20))
-                    this.phase = 'fading'
-                    await new Promise((r) => setTimeout(r, this.fadeMs + 20))
-                    this.phase = 'hidden'
-                    this.$emit('folded')
+                    this.phase = 'faded' // 👈 เปลี่ยนจาก fading/hidden เป็น faded
+                    // ไม่ต้อง hidden แล้ว
                 }
             },
         },
@@ -142,14 +98,18 @@ export default {
 
             // 🔧 คงมุม 0° ระหว่าง folding + fading (+ hidden)
             const forceZero =
-                this.phase === 'folding' || this.phase === 'fading' || this.phase === 'hidden'
+                this.phase === 'folding' ||
+                this.phase === 'fading' ||
+                this.phase === 'hidden' ||
+                this.phase === 'faded'
+
+            console.log(deg(this.pillar?.cmz))
 
             return {
-                year: `rotate(${deg(this.pillar?.yz)}deg)`,
-                month: `rotate(${deg(this.pillar?.mz)}deg)`,
-                day: `rotate(${deg(this.pillar?.dz)}deg)`,
-                hour: `rotate(${forceZero ? 0 : deg(this.pillar?.cyz)}deg)`,
-                minute: `rotate(${forceZero ? 0 : deg(this.pillar?.cmz)}deg)`,
+                year: `rotate(${deg(this.pillar?.yz) - deg(this.pillar?.cmz)}deg)`,
+                month: `rotate(${deg(this.pillar?.mz) - deg(this.pillar?.cmz)}deg)`,
+                day: `rotate(${deg(this.pillar?.dz) - deg(this.pillar?.cmz)}deg)`,
+                minute: `rotate(${forceZero ? 0 : 360 - deg(this.pillar?.cmz)}deg)`,
             }
         },
         type() {
@@ -175,12 +135,17 @@ export default {
             }
         },
         wrapperStyle() {
-            // คุม opacity แบบรวมทั้งวง เพื่อให้เฟดเนียน
-            if (this.phase === 'hidden') return { opacity: 0, pointerEvents: 'none' }
-            if (this.phase === 'fading')
-                return { opacity: 0, transition: `opacity ${this.fadeMs}ms ease` }
-            // idle/folding: แสดง
-            return { opacity: 1, transition: `opacity ${this.fadeMs}ms ease` }
+            switch (this.phase) {
+                case 'faded':
+                    return { opacity: 0.2, transition: `opacity ${this.fadeMs}ms ease` }
+                case 'folding':
+                case 'idle':
+                    return { opacity: 1, transition: `opacity ${this.fadeMs}ms ease` }
+                case 'hidden':
+                    return { opacity: 0, pointerEvents: 'none', transition: 'none' }
+                default:
+                    return {}
+            }
         },
     },
     mounted() {
@@ -206,20 +171,17 @@ export default {
 }
 
 /* z-index เหมือนเดิม */
-img.yinyang {
-    z-index: 2;
+img.inner {
+    z-index: 5;
 }
 img.wheel {
-    z-index: 1;
-}
-img.animal {
-    z-index: 4;
-}
-img.highlight {
     z-index: 3;
 }
-img.text {
-    z-index: 5;
+img.highlight {
+    z-index: 2;
+}
+img.background {
+    z-index: 4;
 }
 
 /* ทรานซิชันการหมุน */

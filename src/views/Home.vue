@@ -1,16 +1,17 @@
 <template>
     <div class="home-wrap">
-        <div class="mt-4">
+        <div class="mt-4 birthday">
             <birthdayInput v-model="birthday" @enter="handleEnter"></birthdayInput>
         </div>
 
-        <div class="sub-header mt-2">
+        <div class="sub-header mt-2" ref="subHeaderEl">
             <span
                 v-for="(t, i) in tabs"
                 :key="t.key"
                 class="tab"
                 :class="{ active: current === t.key }"
                 @click="setActive(i)"
+                :ref="(el) => (tabEls[i] = el)"
             >
                 {{ t.label }}
                 <span v-if="i < tabs.length - 1" class="divider">/</span>
@@ -42,22 +43,28 @@ export default {
             ],
             current: 'monthly',
             activeIndex: 0,
+            tabEls: [],
+            underlinePos: { x: 0, w: 0 },
         }
     },
     created() {
         this.syncFromRoute()
     },
+    mounted() {
+        this.$nextTick(this.updateUnderline) // ✅ เริ่มต้นครั้งแรก
+    },
     computed: {
         underlineStyle() {
             return {
-                transform: `translateX(${this.activeIndex * 100}%)`,
+                width: this.underlinePos.w + 'px',
+                transform: `translateX(${this.underlinePos.x}px)`,
             }
         },
     },
     methods: {
         handleEnter() {
             if (history.length > 100) {
-                console.log(reset)
+                console.log('reset')
             }
             const session = useSessionStore()
             session.setBirthday(this.birthday)
@@ -68,16 +75,23 @@ export default {
             if (!tab) return
             this.activeIndex = i
             this.current = tab.key
-            // Push only if it’s different to avoid duplicate navigation warnings
-            if (this.$route.name !== tab.key) {
-                this.$router.push({ name: tab.key })
-            }
+            if (this.$route.name !== tab.key) this.$router.push({ name: tab.key })
+            this.$nextTick(this.updateUnderline) // ✅ อัปเดตเส้นหลัง DOM เปลี่ยน
         },
         syncFromRoute() {
             const idx = this.tabs.findIndex((t) => t.key === this.$route.name)
             const safeIdx = idx >= 0 ? idx : 0
             this.activeIndex = safeIdx
             this.current = this.tabs[safeIdx].key
+        },
+        updateUnderline() {
+            const el = this.tabEls[this.activeIndex]
+            const wrap = this.$refs.subHeaderEl
+            if (!el || !wrap) return
+            // คำนวณระยะซ้ายของแท็บเทียบกับคอนเทนเนอร์
+            const left = el.offsetLeft - wrap.offsetLeft
+            const width = el.offsetWidth
+            this.underlinePos = { x: left, w: width }
         },
     },
     watch: {
@@ -87,6 +101,7 @@ export default {
         },
         '$route.name'() {
             this.syncFromRoute()
+            this.$nextTick(this.updateUnderline)
         },
     },
 }
@@ -99,8 +114,11 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: rgba(134, 25, 25, 0.699);
+    background-color: rgba(236, 232, 224, 1);
     height: calc(100vh - 64px);
+}
+.birthday {
+    margin-left: 35px;
 }
 .router-wrap {
     width: 100%;
@@ -113,7 +131,7 @@ export default {
     display: flex;
     border-bottom: 1px solid #ddd;
     user-select: none;
-    color: white;
+    color: #464646;
     flex-shrink: 0;
     height: 50px;
 }
@@ -136,19 +154,13 @@ export default {
     pointer-events: none;
 }
 .tab.active::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 3px;
-    background: currentColor;
+    content: none;
 }
 .tab.active {
     font-weight: 900;
 }
 .tab:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(70, 70, 70, 0.03);
 }
 .divider {
     position: absolute;
@@ -162,6 +174,10 @@ export default {
     bottom: -1px;
     left: 0;
     height: 3px;
-    transition: transform 0.3s ease;
+    background-color: #464646;
+    transition:
+        transform 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+        width 0.3s ease;
+    will-change: transform, width;
 }
 </style>
