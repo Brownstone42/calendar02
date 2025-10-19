@@ -191,7 +191,7 @@ export default {
 }
 .zodiac-wrap {
     position: relative;
-    width: min(80vmin, 520px);
+    width: min(73vmin, 520px);
     aspect-ratio: 1 / 1;
     margin: auto;
 }
