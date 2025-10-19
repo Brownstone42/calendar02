@@ -18,6 +18,7 @@ export default {
 #app {
     display: flex;
     flex-direction: column;
+    font-family: 'Helvetica', 'D-DIN Condensed';
 }
 @font-face {
     font-family: 'D-DIN Condensed';

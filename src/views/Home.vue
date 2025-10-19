@@ -30,9 +30,7 @@ import { useSessionStore } from '@/stores/session'
 
 export default {
     name: 'Home',
-    components: {
-        birthdayInput,
-    },
+    components: { birthdayInput },
     data() {
         return {
             birthday: '1989-08-26',
@@ -45,13 +43,47 @@ export default {
             activeIndex: 0,
             tabEls: [],
             underlinePos: { x: 0, w: 0 },
+
+            // ✨ เก็บตัวช่วยสำหรับ cleanup
+            _ro: null,
+            _rafId: null,
+            _resizeHandler: null,
         }
     },
     created() {
         this.syncFromRoute()
     },
     mounted() {
-        this.$nextTick(this.updateUnderline) // ✅ เริ่มต้นครั้งแรก
+        // อัปเดตครั้งแรก
+        this.$nextTick(this.updateUnderline)
+
+        // 1) ฟัง resize (debounce ด้วย rAF)
+        this._resizeHandler = () => {
+            if (this._rafId) cancelAnimationFrame(this._rafId)
+            this._rafId = requestAnimationFrame(() => {
+                this.updateUnderline()
+            })
+        }
+        window.addEventListener('resize', this._resizeHandler, { passive: true })
+
+        // 2) ResizeObserver เฝ้าคอนเทนเนอร์ (และจะเรียกอัปเดตเมื่อ layout เปลี่ยน)
+        const wrap = this.$refs.subHeaderEl
+        if (window.ResizeObserver && wrap) {
+            this._ro = new ResizeObserver(() => {
+                this.updateUnderline()
+            })
+            this._ro.observe(wrap)
+        }
+
+        // 3) รอ font โหลดเสร็จ (ฟอนต์เปลี่ยนขนาดตัวอักษรได้)
+        if (document?.fonts?.ready) {
+            document.fonts.ready.then(() => this.updateUnderline())
+        }
+    },
+    beforeUnmount() {
+        if (this._ro) this._ro.disconnect()
+        if (this._rafId) cancelAnimationFrame(this._rafId)
+        if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler)
     },
     computed: {
         underlineStyle() {
@@ -76,7 +108,7 @@ export default {
             this.activeIndex = i
             this.current = tab.key
             if (this.$route.name !== tab.key) this.$router.push({ name: tab.key })
-            this.$nextTick(this.updateUnderline) // ✅ อัปเดตเส้นหลัง DOM เปลี่ยน
+            this.$nextTick(this.updateUnderline)
         },
         syncFromRoute() {
             const idx = this.tabs.findIndex((t) => t.key === this.$route.name)
@@ -84,14 +116,23 @@ export default {
             this.activeIndex = safeIdx
             this.current = this.tabs[safeIdx].key
         },
+
+        // ✅ ใช้ getBoundingClientRect() เพื่อความแม่นยำ และรองรับการยืดหด
         updateUnderline() {
             const el = this.tabEls[this.activeIndex]
             const wrap = this.$refs.subHeaderEl
             if (!el || !wrap) return
-            // คำนวณระยะซ้ายของแท็บเทียบกับคอนเทนเนอร์
-            const left = el.offsetLeft - wrap.offsetLeft
-            const width = el.offsetWidth
-            this.underlinePos = { x: left, w: width }
+
+            const elRect = el.getBoundingClientRect()
+            const wrapRect = wrap.getBoundingClientRect()
+
+            // ถ้ามี scroll แนวนอน (เผื่อในอนาคต) ให้ชดเชยด้วย scrollLeft
+            const scrollX = wrap.scrollLeft || 0
+
+            const left = elRect.left - wrapRect.left + scrollX
+            const width = elRect.width
+
+            this.underlinePos = { x: Math.round(left), w: Math.round(width) }
         },
     },
     watch: {
@@ -101,6 +142,16 @@ export default {
         },
         '$route.name'() {
             this.syncFromRoute()
+            this.$nextTick(this.updateUnderline)
+        },
+        // ถ้า label ของแท็บเปลี่ยน (ยาว/สั้นขึ้น) ให้ปรับเส้นด้วย
+        tabs: {
+            handler() {
+                this.$nextTick(this.updateUnderline)
+            },
+            deep: true,
+        },
+        activeIndex() {
             this.$nextTick(this.updateUnderline)
         },
     },
@@ -175,9 +226,13 @@ export default {
     left: 0;
     height: 3px;
     background-color: #464646;
-    transition:
-        transform 0.45s cubic-bezier(0.25, 1, 0.5, 1),
-        width 0.3s ease;
-    will-change: transform, width;
+
+    /* ✅ ให้แอนิเมชันเฉพาะการขยับ (translateX) */
+    transition-property: transform;
+    transition-duration: 0.45s;
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+
+    /* ไม่ต้องอนิเมตความกว้าง */
+    will-change: transform;
 }
 </style>

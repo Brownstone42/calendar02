@@ -1,10 +1,7 @@
 <template>
     <div class="zodiac-container">
-        <div class="arrow">
-            <img src="/images/arrow.png" alt="" />
-        </div>
         <div class="zodiac-wrap" :class="wrapperClass" :style="wrapperStyle">
-            <img class="layer background" src="/images/circle-5b.png" alt="background" />
+            <img class="layer background" src="/images/circle-4b.png" alt="background" />
             <img
                 class="layer wheel"
                 src="/images/circle-1b.png"
@@ -51,8 +48,6 @@ export default {
             fadeMs: 420,
             rotateMs: 500,
             _firstRun: true,
-            year: null,
-            rotate: 0,
         }
     },
     watch: {
@@ -108,34 +103,13 @@ export default {
                 this.phase === 'hidden' ||
                 this.phase === 'faded'
 
-            if (this.year) {
-                const degA = deg(this.year)
-                const degB = deg(this.pillar?.cmz)
-                let diff = degB - degA
+            console.log(deg(this.pillar?.cmz))
 
-                if (diff > 180) diff -= 360
-                if (diff < -180) diff += 360
-
-                console.log(diff)
-
-                this.year = this.pillar?.cmz
-
-                return {
-                    year: `rotate(${deg(this.pillar?.yz) - deg(this.pillar?.cmz)}deg)`,
-                    month: `rotate(${deg(this.pillar?.mz) - deg(this.pillar?.cmz)}deg)`,
-                    day: `rotate(${deg(this.pillar?.dz) - deg(this.pillar?.cmz)}deg)`,
-                    minute: `rotate(${forceZero ? 0 : -deg(this.pillar?.cmz)}deg)`,
-                }
-            } else {
-                this.year = this.pillar?.cmz
-                this.rotate = deg(this.pillar?.cmz)
-
-                return {
-                    year: `rotate(${deg(this.pillar?.yz) - deg(this.pillar?.cmz)}deg)`,
-                    month: `rotate(${deg(this.pillar?.mz) - deg(this.pillar?.cmz)}deg)`,
-                    day: `rotate(${deg(this.pillar?.dz) - deg(this.pillar?.cmz)}deg)`,
-                    minute: `rotate(${forceZero ? 0 : -deg(this.pillar?.cmz)}deg)`,
-                }
+            return {
+                year: `rotate(${deg(this.pillar?.yz) - deg(this.pillar?.cmz)}deg)`,
+                month: `rotate(${deg(this.pillar?.mz) - deg(this.pillar?.cmz)}deg)`,
+                day: `rotate(${deg(this.pillar?.dz) - deg(this.pillar?.cmz)}deg)`,
+                minute: `rotate(${forceZero ? 0 : 360 - deg(this.pillar?.cmz)}deg)`,
             }
         },
         type() {
@@ -208,7 +182,6 @@ img.highlight {
 }
 img.background {
     z-index: 4;
-    transform: translateY(20%);
 }
 
 /* ทรานซิชันการหมุน */
@@ -226,14 +199,4 @@ img.background {
 /* ขณะ folding เราเปลี่ยนเฉพาะ highlight ให้หมุนกลับ 0° (ผ่าน computed แล้ว จึงไม่ต้อง !important) */
 
 /* ขณะ fading/hidden ใช้ opacity จาก wrapperStyle แทน เพื่อให้เฟดทั้งวง */
-
-.arrow {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    margin-top: -10px;
-}
-.arrow img {
-    width: 40px;
-}
 </style>

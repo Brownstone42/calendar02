@@ -19,7 +19,7 @@
         <div class="my-content">
             <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
-            <div class="status mt-4" v-if="sessionStore.birthday">
+            <div class="status mt-6" v-if="sessionStore.birthday">
                 <img src="/images/status-1a.png" alt="status 1a" class="status-1" />
                 <span class="mb-4">เบื้องลึกตัวตน</span>
 
@@ -295,9 +295,6 @@ export default {
                     dangerFuture.push(ym)
                 }
             })
-
-            console.log(dangerPast)
-            console.log(dangerFuture)
 
             const clashYears = []
             const clashMonths = []
