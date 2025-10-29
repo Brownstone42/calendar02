@@ -955,6 +955,340 @@ function findClash(yz, mz, dz, y) {
     return results
 }
 
+function tranformScore2(dayMaster, score) {
+    const relationshipScore = {
+        self1: { score: 0, text: 'ความมั่นใจในตัวเอง', balance: '' },
+        self2: { score: 0, text: 'การรับฟังคนรอบข้าง', balance: '' },
+        output1: { score: 0, text: '', balance: '' },
+        output2: { score: 0, text: '', balance: '' },
+        wealth1: { score: 0, text: '', balance: '' },
+        wealth2: { score: 0, text: '', balance: '' },
+        control1: { score: 0, text: '', balance: '' },
+        control2: { score: 0, text: '', balance: '' },
+        support1: { score: 0, text: 'การสนับสนุนจากคนอื่น', balance: '' },
+        support2: { score: 0, text: 'การช่วยเหลือตัวเอง', balance: '' },
+    }
+
+    for (const element in score) {
+        const relationship = getRelationship(dayMaster, element)
+
+        if (relationship == 'Self') {
+            switch (true) {
+                case score[element] >= 70:
+                    relationshipScore.self1.score = 100
+                    relationshipScore.self1.balance = 'สูงมากที่สุด'
+                    relationshipScore.self2.score = 100
+                    relationshipScore.self2.balance = 'ไม่ฟังใครเลย'
+                    break
+                case score[element] >= 60:
+                    relationshipScore.self1.score = 100
+                    relationshipScore.self1.balance = 'สูงมากที่สุด'
+                    relationshipScore.self2.score = 80
+                    relationshipScore.self2.balance = 'แทบจะไม่ฟังใครเลย'
+                    break
+                case score[element] >= 50:
+                    relationshipScore.self1.score = 90
+                    relationshipScore.self1.balance = 'สูงมากๆ'
+                    relationshipScore.self2.score = 80
+                    relationshipScore.self2.balance = 'แทบจะไม่ฟังใครเลย'
+                    break
+                case score[element] >= 45:
+                    relationshipScore.self1.score = 80
+                    relationshipScore.self1.balance = 'สูงมาก'
+                    relationshipScore.self2.score = 70
+                    relationshipScore.self2.balance = 'ฟังบ้างเล็กน้อย แต่ยังเชื่อตัวเองเป็นหลัก'
+                    break
+                case score[element] >= 40:
+                    relationshipScore.self1.score = 70
+                    relationshipScore.self1.balance = 'สูงมากพอสมควร'
+                    relationshipScore.self2.score = 70
+                    relationshipScore.self2.balance = 'ฟังบ้างเล็กน้อย แต่ยังเชื่อตัวเองเป็นหลัก'
+                    break
+                case score[element] >= 35:
+                    relationshipScore.self1.score = 70
+                    relationshipScore.self1.balance = 'สูงมากพอสมควร'
+                    relationshipScore.self2.score = 60
+                    relationshipScore.self2.balance =
+                        'รับฟังคนรอบข้าง แต่ส่วนใหญ่ยังเชื่อตัวเองมากกว่าเล็กน้อย'
+                    break
+                case score[element] >= 30:
+                    relationshipScore.self1.score = 60
+                    relationshipScore.self1.balance = 'ค่อนข้างสูง'
+                    relationshipScore.self2.score = 60
+                    relationshipScore.self2.balance =
+                        'รับฟังคนรอบข้าง แต่ส่วนใหญ่ยังเชื่อตัวเองมากกว่าเล็กน้อย'
+                    break
+                case score[element] >= 25:
+                    relationshipScore.self1.score = 55
+                    relationshipScore.self1.balance = 'ค่อนข้างสูงเล็กน้อย'
+                    relationshipScore.self2.score = 50
+                    relationshipScore.self2.balance = 'รับฟังคนรอบข้าง และตัดสินใจตามหลักเหตุและผล'
+                    break
+                case score[element] >= 20:
+                    relationshipScore.self1.score = 50
+                    relationshipScore.self1.balance = 'สูงกำลังดี'
+                    relationshipScore.self2.score = 50
+                    relationshipScore.self2.balance = 'รับฟังคนรอบข้าง และตัดสินใจตามหลักเหตุและผล'
+                    break
+                case score[element] >= 15:
+                    relationshipScore.self1.score = 40
+                    relationshipScore.self1.balance = 'น้อยกว่าปกติเล็กน้อย'
+                    relationshipScore.self2.score = 50
+                    relationshipScore.self2.balance = 'รับฟังคนรอบข้าง และตัดสินใจตามหลักเหตุและผล'
+                    break
+                case score[element] >= 10:
+                    relationshipScore.self1.score = 30
+                    relationshipScore.self1.balance = 'น้อยกว่าปกติพอสมควร'
+                    relationshipScore.self2.score = 40
+                    relationshipScore.self2.balance =
+                        'รับฟังคนรอบข้างและมักจะเชื่อคนรอบข้างมากกว่าเชื่อตัวเองเป็นบางครั้ง'
+                    break
+                case score[element] >= 5:
+                    relationshipScore.self1.score = 20
+                    relationshipScore.self1.balance = 'น้อยมาก'
+                    relationshipScore.self2.score = 30
+                    relationshipScore.self2.balance =
+                        'รับฟังคนรอบข้างและมักจะเชื่อคนรอบข้างมากกว่าเชื่อตัวเองเป็นส่วนใหญ่'
+                    break
+                case score[element] > 0:
+                    relationshipScore.self1.score = 10
+                    relationshipScore.self1.balance = 'แทบไม่มีเลย'
+                    relationshipScore.self2.score = 20
+                    relationshipScore.self2.balance =
+                        'เลือกที่จะเชื่อคนอื่นมากกว่าตัวเองแทบจะทุกครั้ง'
+                    break
+                case score[element] == 0:
+                    relationshipScore.self1.score = 0
+                    relationshipScore.self1.balance = 'ไม่มีความมั่นใจในตัวเองเลย'
+                    relationshipScore.self2.score = 10
+                    relationshipScore.self2.balance =
+                        'ไม่กล้าตัดสินใจอะไรทำให้ต้องคอยฟังคำของคนอื่นเสมอ'
+                    break
+            }
+        } else if (relationship == 'Support') {
+            switch (true) {
+                case score[element] >= 70:
+                    relationshipScore.support1.score = 100
+                    relationshipScore.support1.balance = 'ได้รับการสนับสนุนจากคนอื่นตลอดเวลา'
+                    relationshipScore.support2.score = 0
+                    relationshipScore.support2.balance = 'พึ่งคนอื่นมากเกินไปจนทำอะไรเองไม่เป็น'
+                    break
+                case score[element] >= 60:
+                    relationshipScore.support1.score = 100
+                    relationshipScore.support1.balance = 'ได้รับการสนับสนุนจากคนอื่นตลอดเวลา'
+                    relationshipScore.support2.score = 10
+                    relationshipScore.support2.balance =
+                        'พึ่งคนอื่นมากเกินไปจนแทบจะทำอะไรเองไม่ค่อยเป็น'
+                    break
+                case score[element] >= 50:
+                    relationshipScore.support1.score = 90
+                    relationshipScore.support1.balance = 'ได้รับการสนับสนุนจากคนอื่นแทบจะตลอดเวลา'
+                    relationshipScore.support2.score = 20
+                    relationshipScore.support2.balance =
+                        'พึ่งคนอื่นมากเกินไปจนบางครั้งทำอะไรเองไม่ค่อยเป็น'
+                    break
+                case score[element] >= 45:
+                    relationshipScore.support1.score = 80
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 30
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 40:
+                    relationshipScore.support1.score = 70
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 30
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 35:
+                    relationshipScore.support1.score = 70
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 40
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 30:
+                    relationshipScore.support1.score = 60
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 40
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 25:
+                    relationshipScore.support1.score = 55
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 50
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 20:
+                    relationshipScore.support1.score = 50
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 50
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 15:
+                    relationshipScore.support1.score = 40
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 50
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 10:
+                    relationshipScore.support1.score = 30
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 60
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] >= 5:
+                    relationshipScore.support1.score = 20
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 70
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] > 0:
+                    relationshipScore.support1.score = 10
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 80
+                    relationshipScore.support2.balance = ''
+                    break
+                case score[element] == 0:
+                    relationshipScore.support1.score = 0
+                    relationshipScore.support1.balance = ''
+                    relationshipScore.support2.score = 90
+                    relationshipScore.support2.balance = ''
+                    break
+            }
+        } else if (relationship == 'Output') {
+            switch (true) {
+                case score[element] >= 80:
+                    relationshipScore.output1 = 5
+                    relationshipScore.output2 = 1
+                    break
+                case score[element] >= 70:
+                    relationshipScore.output1 = 5
+                    relationshipScore.output2 = 1
+                    break
+                case score[element] >= 60:
+                    relationshipScore.output1 = 5
+                    relationshipScore.output2 = 2
+                    break
+                case score[element] >= 50:
+                    relationshipScore.output1 = 6
+                    relationshipScore.output2 = 2
+                    break
+                case score[element] >= 40:
+                    relationshipScore.output1 = 6
+                    relationshipScore.output2 = 3
+                    break
+                case score[element] >= 30:
+                    relationshipScore.output1 = 7
+                    relationshipScore.output2 = 4
+                    break
+                case score[element] >= 20:
+                    relationshipScore.output1 = 5
+                    relationshipScore.output2 = 6
+                    break
+                case score[element] >= 10:
+                    relationshipScore.output1 = 3
+                    relationshipScore.output2 = 4
+                    break
+                case score[element] > 0:
+                    relationshipScore.output1 = 2
+                    relationshipScore.output2 = 3
+                    break
+                case score[element] == 0:
+                    relationshipScore.output1 = 0
+                    relationshipScore.output2 = 1
+                    break
+            }
+        } else if (relationship == 'Wealth') {
+            switch (true) {
+                case score[element] >= 80:
+                    relationshipScore.wealth1 = 7
+                    relationshipScore.wealth2 = 1
+                    break
+                case score[element] >= 70:
+                    relationshipScore.wealth1 = 7
+                    relationshipScore.wealth2 = 1
+                    break
+                case score[element] >= 60:
+                    relationshipScore.wealth1 = 7
+                    relationshipScore.wealth2 = 2
+                    break
+                case score[element] >= 50:
+                    relationshipScore.wealth1 = 6
+                    relationshipScore.wealth2 = 3
+                    break
+                case score[element] >= 40:
+                    relationshipScore.wealth1 = 6
+                    relationshipScore.wealth2 = 4
+                    break
+                case score[element] >= 30:
+                    relationshipScore.wealth1 = 5
+                    relationshipScore.wealth2 = 5
+                    break
+                case score[element] >= 20:
+                    relationshipScore.wealth1 = 4
+                    relationshipScore.wealth2 = 6
+                    break
+                case score[element] >= 10:
+                    relationshipScore.wealth1 = 4
+                    relationshipScore.wealth2 = 4
+                    break
+                case score[element] > 0:
+                    relationshipScore.wealth1 = 3
+                    relationshipScore.wealth2 = 3
+                    break
+                case score[element] == 0:
+                    relationshipScore.wealth1 = 2
+                    relationshipScore.wealth2 = 2
+                    break
+            }
+        } else if (relationship == 'Control') {
+            switch (true) {
+                case score[element] >= 80:
+                    relationshipScore.control1 = 7
+                    relationshipScore.control2 = 4
+                    break
+                case score[element] >= 70:
+                    relationshipScore.control1 = 7
+                    relationshipScore.control2 = 5
+                    break
+                case score[element] >= 60:
+                    relationshipScore.control1 = 6
+                    relationshipScore.control2 = 5
+                    break
+                case score[element] >= 50:
+                    relationshipScore.control1 = 5
+                    relationshipScore.control2 = 4
+                    break
+                case score[element] >= 40:
+                    relationshipScore.control1 = 4
+                    relationshipScore.control2 = 3
+                    break
+                case score[element] >= 30:
+                    relationshipScore.control1 = 4
+                    relationshipScore.control2 = 4
+                    break
+                case score[element] >= 20:
+                    relationshipScore.control1 = 3
+                    relationshipScore.control2 = 4
+                    break
+                case score[element] >= 10:
+                    relationshipScore.control1 = 2
+                    relationshipScore.control2 = 3
+                    break
+                case score[element] > 0:
+                    relationshipScore.control1 = 1
+                    relationshipScore.control2 = 2
+                    break
+                case score[element] == 0:
+                    relationshipScore.control1 = 0
+                    relationshipScore.control2 = 1
+                    break
+            }
+        }
+    }
+
+    return relationshipScore
+}
+
 export default {
     getPillars,
     getScore,

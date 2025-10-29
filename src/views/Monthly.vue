@@ -21,7 +21,12 @@
 
             <div class="status mt-8" v-if="sessionStore.birthday">
                 <img src="/images/status-1a.png" alt="status 1a" class="status-1" />
+
                 <span class="mb-4">เบื้องลึกตัวตน</span>
+
+                <span class="mb-4">{{ score }}</span>
+
+                <span class="mb-4">{{ tranformedScore }}</span>
 
                 <div v-for="(val, key) in tranformedScore" :key="key">
                     <div>
@@ -39,6 +44,13 @@
                             class="progress-bar"
                         />
                     </div>
+                </div>
+
+                <div class="mt-4">
+                    <balance-bar></balance-bar>
+                </div>
+                <div class="mt-4">
+                    <balance-bar2></balance-bar2>
                 </div>
             </div>
 
@@ -94,12 +106,16 @@ import { mapStores } from 'pinia'
 import { useSessionStore } from '@/stores/session'
 import progressBar from '@/components/common/progressBar.vue'
 import circleZodiac from '@/components/monthly/circleZodiac.vue'
+import balanceBar from '@/components/common/balanceBar.vue'
+import balanceBar2 from '@/components/common/ิbalanceBar2.vue'
 
 export default {
     name: 'Monthly',
     components: {
         progressBar,
         circleZodiac,
+        balanceBar,
+        balanceBar2,
     },
     data() {
         return {
@@ -127,6 +143,7 @@ export default {
             },
             dayBlossomCount: 0,
             yearBlossomCount: 0,
+            score: {},
             pillar: {},
 
             clashYears: [],
@@ -257,6 +274,8 @@ export default {
             const score = calculator.getScore(pillars)
             const tranformedScore = calculator.tranformScore(dayMaster, score)
 
+            console.log(tranformedScore)
+
             const cYear = this.months[this.currentIndex].key.split('-')[0]
             const cMonth = this.months[this.currentIndex].key
             const current = cMonth + '-15'
@@ -349,6 +368,7 @@ export default {
             this.clashYears = clashYears
             this.dangerPast = dangerPast
             this.dangerFuture = dangerFuture
+            this.score = score
         },
     },
 }
@@ -421,9 +441,16 @@ span {
 .my-content {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* โมเมนตัมบน iOS */
+    scrollbar-width: none; /* Firefox ซ่อนสครอลบาร์ */
+    -ms-overflow-style: none; /* IE/Edge รุ่นเก่า */
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+.my-content::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 .status {
     display: flex;
