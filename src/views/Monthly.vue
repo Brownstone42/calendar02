@@ -19,7 +19,25 @@
         <div class="my-content">
             <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
-            <div class="status mt-8" v-if="sessionStore.birthday">
+            <div class="status mt-8">
+                <span class="mb-4">สัตว์และธาตุของคุณ</span>
+                <div class="columns is-mobile">
+                    <div class="column is-mobile is-4 animal">
+                        <img :src="`/images/animals/${pillar.dz}.png`" alt="" />
+                        <span>ประจำวันเกิด</span>
+                    </div>
+                    <div class="column is-mobile is-4 animal">
+                        <img :src="`/images/animals/${pillar.mz}.png`" alt="" />
+                        <span>ประจำเดือนเกิด</span>
+                    </div>
+                    <div class="column is-mobile is-4 animal">
+                        <img :src="`/images/animals/${pillar.yz}.png`" alt="" />
+                        <span>ประจำปีเกิด</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status mt-4" v-if="sessionStore.birthday">
                 <img src="/images/status-1a.png" alt="status 1a" class="status-1" />
 
                 <span class="mb-4">เบื้องลึกตัวตน</span>
@@ -272,9 +290,11 @@ export default {
             const luckPillars = calculator.getLuckPillars(pillars.luckPillars)
             const dayMaster = calculator.getDayMaster(pillars)
             const score = calculator.getScore(pillars)
+            const dayMasterStrength = calculator.getDayMasterStrength(dayMaster, score)
+            const favorite = calculator.getFavoriteElement(dayMaster, score, dayMasterStrength)
             const tranformedScore = calculator.tranformScore(dayMaster, score)
 
-            console.log(tranformedScore)
+            //console.log(tranformedScore)
 
             const cYear = this.months[this.currentIndex].key.split('-')[0]
             const cMonth = this.months[this.currentIndex].key
@@ -298,7 +318,11 @@ export default {
             const dayBlossom = this.blossomMap[dz][0]
             const yearBlossom = this.blossomMap[yz][0]
 
-            const clashResult = calculator.findClash(yz, mz, dz, cYear)
+            //const clashResult = calculator.findClash(yz, mz, dz, cYear)
+            const clashResult = calculator.findClash2(yz, mz, dz, cYear, score, favorite)
+
+            console.log(clashResult)
+
             const clash = clashResult.clash
 
             let dangerPast = []
@@ -375,6 +399,17 @@ export default {
 </script>
 
 <style scoped>
+.animal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.animal img {
+    width: 70%;
+}
+.animal span {
+    font-size: 11px;
+}
 .reveal {
     opacity: 0;
     transform: translateY(12px);
@@ -461,9 +496,13 @@ span {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* เพิ่มเงาให้นูน */
     position: relative;
+    transition:
+        box-shadow 0.4s ease,
+        transform 0.4s ease;
 }
 .status:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    transform: translateY(-2px);
 }
 .blossom img {
     margin-right: 10px;

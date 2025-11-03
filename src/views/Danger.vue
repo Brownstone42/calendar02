@@ -92,6 +92,8 @@ export default {
             let zodiacSuggest = []
             const relationScore = calculator.getRelationScore(score, this.dm)
 
+            //console.log(relationScore)
+
             const support = relationScore.Support.element
             const self = relationScore.Self.element
             const output = relationScore.Output.element
@@ -250,6 +252,6 @@ export default {
     width: 100%;
 }
 span {
-    color: white;
+    color: black;
 }
 </style>

@@ -955,6 +955,104 @@ function findClash(yz, mz, dz, y) {
     return results
 }
 
+function findClash2(yz, mz, dz, y, score, favorite) {
+    const startYear = Number(y) - 12
+    const endYear = Number(y) + 12
+    const results = { clash: [], danger: [] }
+
+    for (let year = startYear; year <= endYear; year++) {
+        for (let month = 1; month <= 12; month++) {
+            const current = year + '-' + String(month).padStart(2, '0')
+            const currentFull = current + '-15'
+            const currentPillars = getPillars(currentFull, false, 'male')
+            const currentScore = getCurrentScoreYM(currentPillars)
+            const combinedScore = Object.fromEntries(
+                Object.keys(score).map((k) => [
+                    k,
+                    Number((((+score[k] + +currentScore[k] / 2) * 2) / 3).toFixed(2)),
+                ]),
+            )
+
+            const cyz = currentPillars.yearBranch.animal
+            const cmz = currentPillars.monthBranch.animal
+
+            const cye = currentPillars.yearStem.name.split(' ')[1]
+            const cme = currentPillars.monthStem.name.split(' ')[1]
+
+            const clash = {
+                yy: isClash(yz, cyz),
+                ym: isClash(yz, cmz),
+                my: isClash(mz, cyz),
+                mm: isClash(mz, cmz),
+                dy: isClash(dz, cyz),
+                dm: isClash(dz, cmz),
+            }
+            const count = Object.values(clash).filter((v) => v === true).length
+            clash.count = count
+
+            if (count > 0) {
+                const clashObj = {
+                    year: year,
+                    month: month,
+                    clash,
+                }
+
+                results.clash.push(clashObj)
+            }
+
+            //CASE 1-6
+            const danger = {
+                case1: {
+                    name: 'Year Clash Year + Year Clash Month',
+                    fix: '-',
+                    avoid: '-',
+                    isFound: isClash(yz, cyz) && isClash(yz, cmz),
+                },
+                case2: {
+                    name: 'Day Clash Year + Day Clash Month',
+                    fix: '-',
+                    avoid: '-',
+                    isFound: isClash(dz, cyz) && isClash(dz, cmz),
+                },
+                case3: {
+                    name: 'Year Clash Year + Unfavorite Year + Unfavorite Month',
+                    fix: '-',
+                    avoid: '-',
+                    isFound: isClash(yz, cyz) && !favorite.includes(cye) && !favorite.includes(cme),
+                },
+            }
+            const dangerCount = Object.values(danger).filter((v) => v.isFound === true).length
+            danger.count = dangerCount
+
+            if (dangerCount > 0) {
+                const dangerObj = {
+                    year: year,
+                    month: month,
+                    danger,
+                    cye,
+                    cme,
+                }
+
+                results.danger.push(dangerObj)
+            }
+            /*if (count >= 2) {
+                if (Object.values(currentScore).some((v) => v >= 60)) {
+                    const dangerObj = {
+                        year: year,
+                        month: month,
+                        clash,
+                        score: currentScore,
+                    }
+
+                    results.danger.push(dangerObj)
+                }
+            }*/
+        }
+    }
+
+    return results
+}
+
 function tranformScore2(dayMaster, score) {
     const relationshipScore = {
         self1: { score: 0, text: 'ความมั่นใจในตัวเอง', balance: '' },
@@ -1303,4 +1401,5 @@ export default {
     getRelationScore,
     getDirectionSuggest,
     findClash,
+    findClash2,
 }
