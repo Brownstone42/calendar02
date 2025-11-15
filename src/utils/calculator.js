@@ -15,6 +15,22 @@ const DIRECTION_MAP = {
     Northwest: 'Metal',
 }
 
+const DIRECTION_MAP2 = {
+    Wood: 'East, Southeast',
+    Fire: 'South',
+    Earth: 'Northeast, Southwest',
+    Metal: 'West, Northwest',
+    Water: 'North',
+}
+
+const COLOR_MAP = {
+    Wood: 'Green',
+    Fire: 'Red',
+    Earth: 'Brown',
+    Metal: 'Gray, White',
+    Water: 'Black, Blue',
+}
+
 const ZODIAC_CLASH_MAP = {
     Rat: 'Horse',
     Ox: 'Goat',
@@ -425,6 +441,24 @@ function getDayMasterStrength(dayMaster, score) {
     }
 
     return dayMasterStr
+}
+
+function getDayMasterStrengthScore(dayMaster, score) {
+    let dayMasterScore = 0
+    let dayMasterStr = ''
+
+    for (const key in score) {
+        const relationship = getRelationship(dayMaster, key)
+        if (relationship == 'Self' || relationship == 'Support') {
+            dayMasterScore += Number(score[key])
+        } else if (relationship == 'Output' || relationship == 'Wealth') {
+            dayMasterScore -= Number(score[key] / 2)
+        } else {
+            dayMasterScore -= Number(score[key])
+        }
+    }
+
+    return dayMasterScore
 }
 
 function getFavoriteElement(dayMaster, score, dayMasterStrength) {
@@ -966,18 +1000,15 @@ function findClash2(yz, mz, dz, y, score, favorite) {
             const currentFull = current + '-15'
             const currentPillars = getPillars(currentFull, false, 'male')
             const currentScore = getCurrentScoreYM(currentPillars)
-            const combinedScore = Object.fromEntries(
-                Object.keys(score).map((k) => [
-                    k,
-                    Number((((+score[k] + +currentScore[k] / 2) * 2) / 3).toFixed(2)),
-                ]),
-            )
+            const combinedScore = averageScores(score, currentScore)
 
             const cyz = currentPillars.yearBranch.animal
             const cmz = currentPillars.monthBranch.animal
 
-            const cye = currentPillars.yearStem.name.split(' ')[1]
-            const cme = currentPillars.monthStem.name.split(' ')[1]
+            const cys = currentPillars.yearStem.name.split(' ')[1]
+            const cms = currentPillars.monthStem.name.split(' ')[1]
+            const cyb = currentPillars.yearBranch.hiddenStems[0].name.split(' ')[1]
+            const cmb = currentPillars.monthBranch.hiddenStems[0].name.split(' ')[1]
 
             const clash = {
                 yy: isClash(yz, cyz),
@@ -1002,7 +1033,21 @@ function findClash2(yz, mz, dz, y, score, favorite) {
 
             //CASE 1-6
             const danger = {
-                case1: {
+                combinedScore: combinedScore,
+                currentScore: currentScore,
+                selfScore: score,
+
+                combinedMax: Math.max(...Object.values(combinedScore)),
+                selfMax: Math.max(...Object.values(score)),
+
+                unfavorite: {
+                    fix: '-',
+                    avoid: '-',
+                    isFound: !favorite.includes(cys) && !favorite.includes(cms),
+                    clash,
+                },
+
+                /*case1: {
                     name: 'Year Clash Year + Year Clash Month',
                     fix: '-',
                     avoid: '-',
@@ -1015,12 +1060,21 @@ function findClash2(yz, mz, dz, y, score, favorite) {
                     isFound: isClash(dz, cyz) && isClash(dz, cmz),
                 },
                 case3: {
-                    name: 'Year Clash Year + Unfavorite Year + Unfavorite Month',
+                    name: 'Unfavorite Year + Unfavorite Month',
                     fix: '-',
                     avoid: '-',
-                    isFound: isClash(yz, cyz) && !favorite.includes(cye) && !favorite.includes(cme),
-                },
+                    clashYY: isClash(yz, cyz) && !favorite.includes(cys) && !favorite.includes(cms),
+                    clashMY: isClash(mz, cyz) && !favorite.includes(cys) && !favorite.includes(cms),
+                    clashDY: isClash(dz, cyz) && !favorite.includes(cys) && !favorite.includes(cms),
+                    isFound: !favorite.includes(cys) && !favorite.includes(cms),
+                },*/
             }
+
+            if (danger.unfavorite.isFound) {
+                danger.unfavorite.fix = getFix(favorite, combinedScore)
+                danger.unfavorite.avoid = getAvoid(favorite, combinedScore)
+            }
+
             const dangerCount = Object.values(danger).filter((v) => v.isFound === true).length
             danger.count = dangerCount
 
@@ -1029,8 +1083,10 @@ function findClash2(yz, mz, dz, y, score, favorite) {
                     year: year,
                     month: month,
                     danger,
-                    cye,
-                    cme,
+                    cys,
+                    cms,
+                    cyb,
+                    cmb,
                 }
 
                 results.danger.push(dangerObj)
@@ -1051,6 +1107,57 @@ function findClash2(yz, mz, dz, y, score, favorite) {
     }
 
     return results
+}
+
+function averageScores(a, b) {
+    const result = {}
+    for (const key in a) {
+        result[key] = (a[key] + b[key]) / 2
+    }
+    return result
+}
+
+function getFix(favorite, score) {
+    const filtered = Object.entries(score).filter(([el]) => favorite.includes(el))
+
+    const [minElement] = filtered.reduce(
+        (min, curr) => (curr[1] < min[1] ? curr : min),
+        filtered[0],
+    )
+
+    const direction = DIRECTION_MAP2[minElement]
+    const color = COLOR_MAP[minElement]
+
+    const fix = {
+        element: minElement,
+        direction,
+        color,
+        text: '-',
+    }
+
+    return fix
+}
+
+function getAvoid(favorite, score) {
+    const filtered = Object.entries(score).filter(([el]) => !favorite.includes(el))
+
+    const [maxElement] = filtered.reduce(
+        (max, curr) => (curr[1] > max[1] ? curr : max),
+        filtered[0],
+    )
+
+    //const direction = Object.keys(DIRECTION_MAP).filter((key) => DIRECTION_MAP[key] === maxElement)
+    const direction = DIRECTION_MAP2[maxElement]
+    const color = COLOR_MAP[maxElement]
+
+    const avoid = {
+        element: maxElement,
+        direction,
+        color,
+        text: '-',
+    }
+
+    return avoid
 }
 
 function tranformScore2(dayMaster, score) {
@@ -1387,6 +1494,46 @@ function tranformScore2(dayMaster, score) {
     return relationshipScore
 }
 
+function getPersonal(score, dayMaster) {
+    const master = {
+        element: dayMaster,
+        score: score[dayMaster],
+        strength: getDayMasterStrength(dayMaster, score),
+        strengthScore: getDayMasterStrengthScore(dayMaster, score),
+    }
+
+    const sorted = Object.entries(score).sort((a, b) => b[1] - a[1])
+
+    const [maxElement, maxScore] = sorted[0]
+    const [secondMaxElement, secondMaxScore] = sorted[1]
+    const [minElement, minScore] = sorted[sorted.length - 1]
+
+    const max = {
+        element: maxElement,
+        score: maxScore,
+        delta: maxScore - score[dayMaster],
+        relationship: getRelationship(dayMaster, maxElement),
+    }
+
+    const second = {
+        element: secondMaxElement,
+        score: secondMaxScore,
+        delta: secondMaxScore - score[dayMaster],
+        relationship: getRelationship(dayMaster, secondMaxElement),
+    }
+
+    const min = {
+        element: minElement,
+        score: minScore,
+        delta: minScore - score[dayMaster],
+        relationship: getRelationship(dayMaster, minElement),
+    }
+
+    const personal = { master, max, second, min }
+
+    return personal
+}
+
 export default {
     getPillars,
     getScore,
@@ -1402,4 +1549,5 @@ export default {
     getDirectionSuggest,
     findClash,
     findClash2,
+    getPersonal,
 }

@@ -19,7 +19,7 @@
         <div class="my-content">
             <circle-zodiac :pillar="pillar" :active="!!sessionStore.birthday"></circle-zodiac>
 
-            <div class="status mt-8">
+            <div class="status mt-8" v-if="sessionStore.birthday">
                 <span class="mb-4">สัตว์และธาตุของคุณ</span>
                 <div class="columns is-mobile">
                     <div class="column is-mobile is-4 animal">
@@ -321,9 +321,11 @@ export default {
             //const clashResult = calculator.findClash(yz, mz, dz, cYear)
             const clashResult = calculator.findClash2(yz, mz, dz, cYear, score, favorite)
 
-            console.log(clashResult)
-
             const clash = clashResult.clash
+            const personal = calculator.getPersonal(score, dayMaster)
+
+            console.log(clashResult)
+            console.log(personal)
 
             let dangerPast = []
             let dangerFuture = []
