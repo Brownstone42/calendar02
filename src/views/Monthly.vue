@@ -104,7 +104,7 @@
             </div>
 
             <div
-                class="status my-4 reveal"
+                class="status mt-4 reveal"
                 ref="status4"
                 :class="{ 'is-visible': reveal.status4 }"
                 v-if="sessionStore.birthday"
@@ -112,6 +112,15 @@
                 <span class="mb-4">เดือนแปรปรวนในรอบ 12 ปี</span>
                 <span class="mb-4"> {{ `อดีต ${dangerPast.join(', ')}` }} </span>
                 <span> {{ `อนาคต ${dangerFuture.join(', ')}` }} </span>
+            </div>
+
+            <div
+                class="status my-4 reveal"
+                ref="status5"
+                :class="{ 'is-visible': reveal.status5 }"
+                v-if="sessionStore.birthday"
+            >
+                <span class="mb-4">ตัวตนของฉัน</span>
             </div>
         </div>
     </div>
@@ -137,7 +146,7 @@ export default {
     },
     data() {
         return {
-            reveal: { status2: false, status3: false, status4: false },
+            reveal: { status2: false, status3: false, status4: false, status5: false },
 
             months: [],
             monthRefs: [],
@@ -208,7 +217,9 @@ export default {
             const el2 = this.$refs.status2
             const el3 = this.$refs.status3
             const el4 = this.$refs.status4
-            if (!el2 && !el3 && !el4) return
+            const el5 = this.$refs.status5
+
+            if (!el2 && !el3 && !el4 && !el5) return
 
             const io = new IntersectionObserver(
                 (entries) => {
@@ -230,6 +241,12 @@ export default {
                                 io.unobserve(el4)
                             }, 240)
                         }
+                        if (entry.target === el5) {
+                            setTimeout(() => {
+                                this.reveal.status5 = true
+                                io.unobserve(el5)
+                            }, 360)
+                        }
                     })
                 },
                 { threshold: 0.2 },
@@ -238,6 +255,7 @@ export default {
             el2 && io.observe(el2)
             el3 && io.observe(el3)
             el4 && io.observe(el4)
+            el5 && io.observe(el5)
         },
         generateMonths(baseDate = new Date()) {
             const start = subMonths(baseDate, 6)
