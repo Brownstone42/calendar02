@@ -121,6 +121,7 @@
                 v-if="sessionStore.birthday"
             >
                 <span class="mb-4">ตัวตนของฉัน</span>
+                <span class="mb-4">ปีเกิด ปี </span>
             </div>
         </div>
     </div>
@@ -342,6 +343,7 @@ export default {
             const clash = clashResult.clash
             const personal = calculator.getPersonal(score, dayMaster)
 
+            console.log(birthday)
             console.log(clashResult)
             console.log(personal)
 
