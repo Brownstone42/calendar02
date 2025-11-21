@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div
+            <!--<div
                 class="status mt-4 reveal"
                 ref="status2"
                 :class="{ 'is-visible': reveal.status2 }"
@@ -90,9 +90,9 @@
                         "
                     />
                 </div>
-            </div>
+            </div>-->
 
-            <div
+            <!--<div
                 class="status mt-4 reveal"
                 ref="status3"
                 :class="{ 'is-visible': reveal.status3 }"
@@ -101,9 +101,9 @@
                 <span class="mb-4">ปีชง และ เดือนชง ของคุณ</span>
                 <span class="mb-4"> {{ `ปี ${clashYears.join(', ')}` }} </span>
                 <span> {{ `เดือน ${clashMonths.join(', ')} ของทุกปี` }} </span>
-            </div>
+            </div>-->
 
-            <div
+            <!--<div
                 class="status mt-4 reveal"
                 ref="status4"
                 :class="{ 'is-visible': reveal.status4 }"
@@ -112,7 +112,7 @@
                 <span class="mb-4">เดือนแปรปรวนในรอบ 12 ปี</span>
                 <span class="mb-4"> {{ `อดีต ${dangerPast.join(', ')}` }} </span>
                 <span> {{ `อนาคต ${dangerFuture.join(', ')}` }} </span>
-            </div>
+            </div>-->
 
             <div
                 class="status my-4 reveal"
@@ -121,7 +121,16 @@
                 v-if="sessionStore.birthday"
             >
                 <span class="mb-4">ตัวตนของฉัน</span>
-                <span class="mb-4">ปีเกิด ปี </span>
+                <span class="mb-4">{{ `ปีเกิด ปี ${info.year} (${pillar.yz} ${pillar.ye})` }}</span>
+                <span class="mb-4">{{
+                    `เดือนเกิด เดือน ${info.month} (${pillar.mz} ${pillar.me})`
+                }}</span>
+                <span class="mb-4">{{
+                    `วันเกิด เดือน ${info.day} (${pillar.dz} ${pillar.de})`
+                }}</span>
+                <span class="mb-4">{{ `ธาตุประจำตัว ${info.dayMaster}` }}</span>
+                <span>{{ `สรุป` }}</span>
+                <span>{{ `สรุป` }}</span>
             </div>
         </div>
     </div>
@@ -147,7 +156,7 @@ export default {
     },
     data() {
         return {
-            reveal: { status2: false, status3: false, status4: false, status5: false },
+            reveal: { status5: false },
 
             months: [],
             monthRefs: [],
@@ -173,6 +182,7 @@ export default {
             yearBlossomCount: 0,
             score: {},
             pillar: {},
+            info: {},
 
             clashYears: [],
             clashMonths: [],
@@ -215,22 +225,23 @@ export default {
     },
     methods: {
         observeStatuses() {
-            const el2 = this.$refs.status2
+            /*const el2 = this.$refs.status2
             const el3 = this.$refs.status3
-            const el4 = this.$refs.status4
+            const el4 = this.$refs.status4*/
             const el5 = this.$refs.status5
 
-            if (!el2 && !el3 && !el4 && !el5) return
+            //if (!el2 && !el3 && !el4 && !el5) return
+            if (!el5) return
 
             const io = new IntersectionObserver(
                 (entries) => {
                     entries.forEach((entry) => {
                         if (!entry.isIntersecting) return
-                        if (entry.target === el2) {
-                            this.reveal.status2 = true
-                            io.unobserve(el2)
+                        if (entry.target === el5) {
+                            this.reveal.status5 = true
+                            io.unobserve(el5)
                         }
-                        if (entry.target === el3) {
+                        /*if (entry.target === el3) {
                             setTimeout(() => {
                                 this.reveal.status3 = true
                                 io.unobserve(el3)
@@ -247,15 +258,15 @@ export default {
                                 this.reveal.status5 = true
                                 io.unobserve(el5)
                             }, 360)
-                        }
+                        }*/
                     })
                 },
                 { threshold: 0.2 },
             )
 
-            el2 && io.observe(el2)
+            /*el2 && io.observe(el2)
             el3 && io.observe(el3)
-            el4 && io.observe(el4)
+            el4 && io.observe(el4)*/
             el5 && io.observe(el5)
         },
         generateMonths(baseDate = new Date()) {
@@ -310,6 +321,7 @@ export default {
             const dayMaster = calculator.getDayMaster(pillars)
             const score = calculator.getScore(pillars)
             const dayMasterStrength = calculator.getDayMasterStrength(dayMaster, score)
+            const dayMasterStrengthScore = calculator.getDayMasterStrengthScore(dayMaster, score)
             const favorite = calculator.getFavoriteElement(dayMaster, score, dayMasterStrength)
             const tranformedScore = calculator.tranformScore(dayMaster, score)
 
@@ -331,6 +343,9 @@ export default {
             const yz = pillars.yearBranch.animal
             const mz = pillars.monthBranch.animal
             const dz = pillars.dayBranch.animal
+            const ye = pillars.yearStem.name.split(' ')[1]
+            const me = pillars.monthStem.name.split(' ')[1]
+            const de = pillars.dayStem.name.split(' ')[1]
 
             const lpz = luckPillars[i].earthlyBranch.animal
 
@@ -342,10 +357,16 @@ export default {
 
             const clash = clashResult.clash
             const personal = calculator.getPersonal(score, dayMaster)
+            const personalText = calculator.getPersonalText(
+                pillars.dayStem.name,
+                dayMasterStrengthScore,
+            )
 
-            console.log(birthday)
-            console.log(clashResult)
-            console.log(personal)
+            console.log(personalText)
+
+            const bYear = birthday.split('-')[0]
+            const bMonth = birthday.split('-')[1]
+            const bDay = birthday.split('-')[2]
 
             let dangerPast = []
             let dangerFuture = []
@@ -403,7 +424,22 @@ export default {
                 yz,
                 mz,
                 dz,
+                ye,
+                me,
+                de,
             }
+
+            const info = {
+                year: bYear,
+                month: bMonth,
+                day: bDay,
+                dayMaster: pillars.dayStem.name,
+            }
+
+            console.log(clashResult)
+            console.log(personal)
+            console.log(info)
+            console.log(dayMasterStrengthScore)
 
             this.tranformedScore = tranformedScore
             this.currentTransformedScore = currentTransformScore
@@ -415,6 +451,7 @@ export default {
             this.dangerPast = dangerPast
             this.dangerFuture = dangerFuture
             this.score = score
+            this.info = info
         },
     },
 }
