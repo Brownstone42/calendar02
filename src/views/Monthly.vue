@@ -128,9 +128,12 @@
                 <span class="mb-4">{{
                     `วันเกิด เดือน ${info.day} (${pillar.dz} ${pillar.de})`
                 }}</span>
-                <span class="mb-4">{{ `ธาตุประจำตัว ${info.dayMaster}` }}</span>
-                <span>{{ `สรุป` }}</span>
-                <span>{{ `สรุป` }}</span>
+                <span class="mb-4">{{
+                    `ธาตุประจำตัว ${info.dayMaster} (${personalText.strength})`
+                }}</span>
+                <span class="mb-4">{{ `${personalText.text}` }}</span>
+                <span class="mb-4">{{ `ควรแก้ด้วย ${fix.element} - ${fix.direction}` }}</span>
+                <span>{{ `ควรหลีกเลี่ยง ${avoid.element} - ${avoid.direction}` }}</span>
             </div>
         </div>
     </div>
@@ -183,6 +186,9 @@ export default {
             score: {},
             pillar: {},
             info: {},
+            personalText: {},
+            fix: {},
+            avoid: {},
 
             clashYears: [],
             clashMonths: [],
@@ -436,10 +442,15 @@ export default {
                 dayMaster: pillars.dayStem.name,
             }
 
+            const fix = calculator.getFix(favorite, score)
+            const avoid = calculator.getAvoid(favorite, score)
+
             console.log(clashResult)
             console.log(personal)
             console.log(info)
             console.log(dayMasterStrengthScore)
+            console.log(fix)
+            console.log(avoid)
 
             this.tranformedScore = tranformedScore
             this.currentTransformedScore = currentTransformScore
@@ -452,6 +463,9 @@ export default {
             this.dangerFuture = dangerFuture
             this.score = score
             this.info = info
+            this.personalText = personalText
+            this.fix = fix
+            this.avoid = avoid
         },
     },
 }
