@@ -1,5 +1,6 @@
 import { BaziCalculator } from '@aharris02/bazi-calculator-by-alvamind'
 import { toDate } from 'date-fns-tz'
+import * as XLSX from 'xlsx'
 
 const ELEMENT_KEYS = ['Wood', 'Fire', 'Earth', 'Metal', 'Water']
 const ROOT_BONUS = { primary: 0.3, secondary: 0.2, tertiary: 0.1 }
@@ -1117,38 +1118,58 @@ function averageScores(a, b) {
     return result
 }
 
-function getFix(favorite, score) {
-    const filtered = Object.entries(score).filter(([el]) => favorite.includes(el))
+function getFix(favorite, score, personal) {
+    /*const filtered = Object.entries(score).filter(([el]) => favorite.includes(el))
 
     const [minElement] = filtered.reduce(
         (min, curr) => (curr[1] < min[1] ? curr : min),
         filtered[0],
-    )
+    )*/
+
+    const minElement = personal.min.element
 
     const direction = DIRECTION_MAP2[minElement]
     const color = COLOR_MAP[minElement]
+    console.log(personal)
+
+    let level = ''
+
+    if (personal.min.score == 0) {
+        level = '5'
+    } else if (personal.min.score <= 5) {
+        level = '4'
+    } else if (personal.min.score <= 10) {
+        level = '3'
+    } else if (personal.min.score <= 15) {
+        level = '2'
+    } else if (personal.min.score <= 20) {
+        level = '1'
+    }
 
     const fix = {
         element: minElement,
         direction,
         color,
+        level,
         text: '-',
     }
 
     return fix
 }
 
-function getAvoid(favorite, score) {
-    const filtered = Object.entries(score).filter(([el]) => !favorite.includes(el))
+function getAvoid(favorite, score, personal) {
+    /*const filtered = Object.entries(score).filter(([el]) => !favorite.includes(el))
 
     const [maxElement] = filtered.reduce(
         (max, curr) => (curr[1] > max[1] ? curr : max),
         filtered[0],
-    )
+    )*/
 
-    //const direction = Object.keys(DIRECTION_MAP).filter((key) => DIRECTION_MAP[key] === maxElement)
+    const maxElement = personal.max.element
+
     const direction = DIRECTION_MAP2[maxElement]
     const color = COLOR_MAP[maxElement]
+    console.log(personal)
 
     const avoid = {
         element: maxElement,
@@ -1930,6 +1951,389 @@ function getPersonalText(dayMaster, dayMasterStrengthScore) {
     return { dayMaster, dayMasterStrengthScore, text, strength }
 }
 
+async function getStatRow(birthday) {
+    try {
+        const response = await fetch('/Score_1965_2025_V5.xlsx')
+
+        if (!response.ok) {
+            throw new Error('โหลดไฟล์ Excel ไม่ได้')
+        }
+
+        const arrayBuffer = await response.arrayBuffer()
+        const data = new Uint8Array(arrayBuffer)
+        const workbook = XLSX.read(data, { type: 'array' })
+
+        const sheetName = workbook.SheetNames[0]
+        const sheet = workbook.Sheets[sheetName]
+
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 'A' })
+
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i]
+            if (row['A'] === birthday) {
+                return row
+            }
+        }
+    } catch (err) {
+        console.log(err.message)
+        return
+    }
+}
+
+function getStat(statRow) {
+    const balanceDecade = statRow['Y']
+    const balanceYear = statRow['Z']
+    const balanceMonth = statRow['AA']
+
+    const supportDecade = statRow['AB']
+    const supportYear = statRow['AC']
+    const supportMonth = statRow['AD']
+
+    const selfDecade = statRow['AE']
+    const selfYear = statRow['AF']
+    const selfMonth = statRow['AG']
+
+    const outputDecade = statRow['AH']
+    const outputYear = statRow['AI']
+    const outputMonth = statRow['AJ']
+
+    const wealthDecade = statRow['AK']
+    const wealthYear = statRow['AL']
+    const wealthMonth = statRow['AM']
+
+    const controlDecade = statRow['AN']
+    const controlYear = statRow['AO']
+    const controlMonth = statRow['AP']
+
+    const stat = []
+
+    /* --- CONTROL -- */
+
+    if (controlDecade == 1) {
+        stat.push('controlDecade = 1')
+    } else if (controlDecade <= 10) {
+        stat.push('controlDecade < 10')
+    } else if (controlDecade <= 50) {
+        stat.push('controlDecade < 50')
+    } else if (controlDecade <= 200) {
+        stat.push('controlDecade < 200')
+    } else if (controlDecade <= 500) {
+        stat.push('controlDecade < 500')
+    } else if (controlDecade >= 3000) {
+        stat.push('controlDecade >= 3000')
+    } else if (controlDecade >= 2500) {
+        stat.push('controlDecade >= 2500')
+    } else if (controlDecade >= 2000) {
+        stat.push('controlDecade >= 2000')
+    }
+
+    if (controlYear == 1) {
+        stat.push('controlYear = 1')
+    } else if (controlYear <= 10) {
+        stat.push('controlYear < 10')
+    } else if (controlYear <= 25) {
+        stat.push('controlYear < 25')
+    } else if (controlYear <= 50) {
+        stat.push('controlYear < 50')
+    } else if (controlYear >= 300) {
+        stat.push('controlYear >= 300')
+    } else if (controlYear >= 250) {
+        stat.push('controlYear >= 250')
+    } else if (controlYear >= 200) {
+        stat.push('controlYear >= 200')
+    }
+
+    if (controlMonth == 1) {
+        stat.push('controlMonth = 1')
+    } else if (controlMonth <= 3) {
+        stat.push('controlMonth < 3')
+    } else if (controlMonth <= 5) {
+        stat.push('controlMonth < 5')
+    } else if (controlMonth <= 10) {
+        stat.push('controlMonth < 10')
+    } else if (controlMonth >= 20) {
+        stat.push('controlMonth >= 20')
+    } else if (controlMonth >= 25) {
+        stat.push('controlMonth >= 25')
+    }
+
+    /* --- WEALTH -- */
+
+    if (wealthDecade == 1) {
+        stat.push('wealthDecade = 1')
+    } else if (wealthDecade <= 10) {
+        stat.push('wealthDecade < 10')
+    } else if (wealthDecade <= 50) {
+        stat.push('wealthDecade < 50')
+    } else if (wealthDecade <= 200) {
+        stat.push('wealthDecade < 200')
+    } else if (wealthDecade <= 500) {
+        stat.push('wealthDecade < 500')
+    } else if (wealthDecade >= 3000) {
+        stat.push('wealthDecade >= 3000')
+    } else if (wealthDecade >= 2500) {
+        stat.push('wealthDecade >= 2500')
+    } else if (wealthDecade >= 2000) {
+        stat.push('wealthDecade >= 2000')
+    }
+
+    if (wealthYear == 1) {
+        stat.push('wealthYear = 1')
+    } else if (wealthYear <= 10) {
+        stat.push('wealthYear < 10')
+    } else if (wealthYear <= 25) {
+        stat.push('wealthYear < 25')
+    } else if (wealthYear <= 50) {
+        stat.push('wealthYear < 50')
+    } else if (wealthYear >= 300) {
+        stat.push('wealthYear >= 300')
+    } else if (wealthYear >= 250) {
+        stat.push('wealthYear >= 250')
+    } else if (wealthYear >= 200) {
+        stat.push('wealthYear >= 200')
+    }
+
+    if (wealthMonth == 1) {
+        stat.push('wealthMonth = 1')
+    } else if (wealthMonth <= 3) {
+        stat.push('wealthMonth < 3')
+    } else if (wealthMonth <= 5) {
+        stat.push('wealthMonth < 5')
+    } else if (wealthMonth <= 10) {
+        stat.push('wealthMonth < 10')
+    } else if (wealthMonth >= 20) {
+        stat.push('wealthMonth >= 20')
+    } else if (wealthMonth >= 25) {
+        stat.push('wealthMonth >= 25')
+    }
+
+    /* --- OUTPUT -- */
+
+    if (outputDecade == 1) {
+        stat.push('outputDecade = 1')
+    } else if (outputDecade <= 10) {
+        stat.push('outputDecade < 10')
+    } else if (outputDecade <= 50) {
+        stat.push('outputDecade < 50')
+    } else if (outputDecade <= 200) {
+        stat.push('outputDecade < 200')
+    } else if (outputDecade <= 500) {
+        stat.push('outputDecade < 500')
+    } else if (outputDecade >= 3000) {
+        stat.push('outputDecade >= 3000')
+    } else if (outputDecade >= 2500) {
+        stat.push('outputDecade >= 2500')
+    } else if (outputDecade >= 2000) {
+        stat.push('outputDecade >= 2000')
+    }
+
+    if (outputYear == 1) {
+        stat.push('outputYear = 1')
+    } else if (outputYear <= 10) {
+        stat.push('outputYear < 10')
+    } else if (outputYear <= 25) {
+        stat.push('outputYear < 25')
+    } else if (outputYear <= 50) {
+        stat.push('outputYear < 50')
+    } else if (outputYear >= 300) {
+        stat.push('outputYear >= 300')
+    } else if (outputYear >= 250) {
+        stat.push('outputYear >= 250')
+    } else if (outputYear >= 200) {
+        stat.push('outputYear >= 200')
+    }
+
+    if (outputMonth == 1) {
+        stat.push('outputMonth = 1')
+    } else if (outputMonth <= 3) {
+        stat.push('outputMonth < 3')
+    } else if (outputMonth <= 5) {
+        stat.push('outputMonth < 5')
+    } else if (outputMonth <= 10) {
+        stat.push('outputMonth < 10')
+    } else if (outputMonth >= 20) {
+        stat.push('outputMonth >= 20')
+    } else if (outputMonth >= 25) {
+        stat.push('outputMonth >= 25')
+    }
+
+    /* --- SUPPORT -- */
+
+    if (supportDecade == 1) {
+        stat.push('supportDecade = 1')
+    } else if (supportDecade <= 10) {
+        stat.push('supportDecade < 10')
+    } else if (supportDecade <= 50) {
+        stat.push('supportDecade < 50')
+    } else if (supportDecade <= 200) {
+        stat.push('supportDecade < 200')
+    } else if (supportDecade <= 500) {
+        stat.push('supportDecade < 500')
+    } else if (supportDecade >= 3000) {
+        stat.push('supportDecade >= 3000')
+    } else if (supportDecade >= 2500) {
+        stat.push('supportDecade >= 2500')
+    } else if (supportDecade >= 2000) {
+        stat.push('supportDecade >= 2000')
+    }
+
+    if (supportYear == 1) {
+        stat.push('supportYear = 1')
+    } else if (supportYear <= 10) {
+        stat.push('supportYear < 10')
+    } else if (supportYear <= 25) {
+        stat.push('supportYear < 25')
+    } else if (supportYear <= 50) {
+        stat.push('supportYear < 50')
+    } else if (supportYear >= 300) {
+        stat.push('supportYear >= 300')
+    } else if (supportYear >= 250) {
+        stat.push('supportYear >= 250')
+    } else if (supportYear >= 200) {
+        stat.push('supportYear >= 200')
+    }
+
+    if (supportMonth == 1) {
+        stat.push('supportMonth = 1')
+    } else if (supportMonth <= 3) {
+        stat.push('supportMonth < 3')
+    } else if (supportMonth <= 5) {
+        stat.push('supportMonth < 5')
+    } else if (supportMonth <= 10) {
+        stat.push('supportMonth < 10')
+    } else if (supportMonth >= 20) {
+        stat.push('supportMonth >= 20')
+    } else if (supportMonth >= 25) {
+        stat.push('supportMonth >= 25')
+    }
+
+    /* --- SELF -- */
+
+    if (selfDecade == 1) {
+        stat.push('selfDecade = 1')
+    } else if (selfDecade <= 10) {
+        stat.push('selfDecade < 10')
+    } else if (selfDecade <= 50) {
+        stat.push('selfDecade < 50')
+    } else if (selfDecade <= 200) {
+        stat.push('selfDecade < 200')
+    } else if (selfDecade <= 500) {
+        stat.push('selfDecade < 500')
+    } else if (selfDecade >= 3000) {
+        stat.push('selfDecade >= 3000')
+    } else if (selfDecade >= 2500) {
+        stat.push('selfDecade >= 2500')
+    } else if (selfDecade >= 2000) {
+        stat.push('selfDecade >= 2000')
+    }
+
+    if (selfYear == 1) {
+        stat.push('selfYear = 1')
+    } else if (selfYear <= 10) {
+        stat.push('selfYear < 10')
+    } else if (selfYear <= 25) {
+        stat.push('selfYear < 25')
+    } else if (selfYear <= 50) {
+        stat.push('selfYear < 50')
+    } else if (selfYear >= 300) {
+        stat.push('selfYear >= 300')
+    } else if (selfYear >= 250) {
+        stat.push('selfYear >= 250')
+    } else if (selfYear >= 200) {
+        stat.push('selfYear >= 200')
+    }
+
+    if (selfMonth == 1) {
+        stat.push('selfMonth = 1')
+    } else if (selfMonth <= 3) {
+        stat.push('selfMonth < 3')
+    } else if (selfMonth <= 5) {
+        stat.push('selfMonth < 5')
+    } else if (selfMonth <= 10) {
+        stat.push('selfMonth < 10')
+    } else if (selfMonth >= 20) {
+        stat.push('selfMonth >= 20')
+    } else if (selfMonth >= 25) {
+        stat.push('selfMonth >= 25')
+    }
+
+    /* --- BALANCE -- */
+
+    if (balanceDecade == 1) {
+        stat.push('balanceDecade = 1')
+    } else if (balanceDecade <= 10) {
+        stat.push('balanceDecade < 10')
+    } else if (balanceDecade <= 50) {
+        stat.push('balanceDecade < 50')
+    } else if (balanceDecade <= 200) {
+        stat.push('balanceDecade < 200')
+    } else if (balanceDecade <= 500) {
+        stat.push('balanceDecade < 500')
+    } else if (balanceDecade >= 3000) {
+        stat.push('balanceDecade >= 3000')
+    } else if (balanceDecade >= 2500) {
+        stat.push('balanceDecade >= 2500')
+    } else if (balanceDecade >= 2000) {
+        stat.push('balanceDecade >= 2000')
+    }
+
+    if (balanceYear == 1) {
+        stat.push('balanceYear = 1')
+    } else if (balanceYear <= 10) {
+        stat.push('balanceYear < 10')
+    } else if (balanceYear <= 25) {
+        stat.push('balanceYear < 25')
+    } else if (balanceYear <= 50) {
+        stat.push('balanceYear < 50')
+    } else if (balanceYear >= 300) {
+        stat.push('balanceYear >= 300')
+    } else if (balanceYear >= 250) {
+        stat.push('balanceYear >= 250')
+    } else if (balanceYear >= 200) {
+        stat.push('balanceYear >= 200')
+    }
+
+    if (balanceMonth == 1) {
+        stat.push('balanceMonth = 1')
+    } else if (balanceMonth <= 3) {
+        stat.push('balanceMonth < 3')
+    } else if (balanceMonth <= 5) {
+        stat.push('balanceMonth < 5')
+    } else if (balanceMonth <= 10) {
+        stat.push('balanceMonth < 10')
+    } else if (balanceMonth >= 20) {
+        stat.push('balanceMonth >= 20')
+    } else if (balanceMonth >= 25) {
+        stat.push('balanceMonth >= 25')
+    }
+
+    const info = {
+        group: stat,
+        score: {
+            balanceDecade,
+            balanceYear,
+            balanceMonth,
+            supportDecade,
+            supportYear,
+            supportMonth,
+            selfDecade,
+            selfYear,
+            selfMonth,
+            outputDecade,
+            outputYear,
+            outputMonth,
+            wealthDecade,
+            wealthYear,
+            wealthMonth,
+            controlDecade,
+            controlYear,
+            controlMonth,
+        },
+    }
+
+    return info
+}
+
 export default {
     getPillars,
     getScore,
@@ -1950,4 +2354,6 @@ export default {
     getPersonalText,
     getFix,
     getAvoid,
+    getStatRow,
+    getStat,
 }

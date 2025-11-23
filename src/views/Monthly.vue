@@ -320,7 +320,7 @@ export default {
         recenter() {
             this.centerToIndex(this.currentIndex, 'auto')
         },
-        fetchData() {
+        async fetchData() {
             const birthday = this.sessionStore.birthday
             const pillars = calculator.getPillars(birthday, false, 'male')
             const luckPillars = calculator.getLuckPillars(pillars.luckPillars)
@@ -359,22 +359,20 @@ export default {
             const yearBlossom = this.blossomMap[yz][0]
 
             //const clashResult = calculator.findClash(yz, mz, dz, cYear)
-            const clashResult = calculator.findClash2(yz, mz, dz, cYear, score, favorite)
+            //const clashResult = calculator.findClash2(yz, mz, dz, cYear, score, favorite)
 
-            const clash = clashResult.clash
+            //const clash = clashResult.clash
             const personal = calculator.getPersonal(score, dayMaster)
             const personalText = calculator.getPersonalText(
                 pillars.dayStem.name,
                 dayMasterStrengthScore,
             )
 
-            console.log(personalText)
-
             const bYear = birthday.split('-')[0]
             const bMonth = birthday.split('-')[1]
             const bDay = birthday.split('-')[2]
 
-            let dangerPast = []
+            /*let dangerPast = []
             let dangerFuture = []
             const danger = clashResult.danger
 
@@ -386,14 +384,14 @@ export default {
                 } else {
                     dangerFuture.push(ym)
                 }
-            })
+            })*/
 
             const clashYears = []
             const clashMonths = []
             const seenMonth = new Set()
             const seenYear = new Set()
 
-            for (const item of clash) {
+            /*for (const item of clash) {
                 if (
                     (item.clash.ym || item.clash.mm || item.clash.dm) &&
                     !seenMonth.has(item.month)
@@ -407,7 +405,7 @@ export default {
                     clashYears.push(item.year)
                     seenYear.add(item.year)
                 }
-            }
+            }*/
 
             let dayBlossomCount = 0
             let yearBlossomCount = 0
@@ -442,15 +440,22 @@ export default {
                 dayMaster: pillars.dayStem.name,
             }
 
-            const fix = calculator.getFix(favorite, score)
-            const avoid = calculator.getAvoid(favorite, score)
+            //console.log(personal)
+            const fix = calculator.getFix(favorite, score, personal)
+            const avoid = calculator.getAvoid(favorite, score, personal)
 
+            const statRow = await calculator.getStatRow(birthday)
+            const stat = calculator.getStat(statRow)
+
+            /*console.log(personalText)
             console.log(clashResult)
-            console.log(personal)
             console.log(info)
-            console.log(dayMasterStrengthScore)
-            console.log(fix)
-            console.log(avoid)
+            console.log(dayMasterStrengthScore)*/
+
+            /*console.log(fix)
+            console.log(avoid)*/
+
+            console.log(stat)
 
             this.tranformedScore = tranformedScore
             this.currentTransformedScore = currentTransformScore
@@ -459,8 +464,8 @@ export default {
             this.pillar = pillar
             this.clashMonths = clashMonths
             this.clashYears = clashYears
-            this.dangerPast = dangerPast
-            this.dangerFuture = dangerFuture
+            /*this.dangerPast = dangerPast
+            this.dangerFuture = dangerFuture*/
             this.score = score
             this.info = info
             this.personalText = personalText
