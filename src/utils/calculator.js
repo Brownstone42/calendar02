@@ -1953,7 +1953,9 @@ function getPersonalText(dayMaster, dayMasterStrengthScore) {
 
 async function getStatRow(birthday) {
     try {
-        const response = await fetch('/Score_1965_2025_V5.xlsx')
+        const year = new Date(birthday).getFullYear()
+        const decade = Math.floor(year / 10) * 10
+        const response = await fetch(`/Score_${decade}.xlsx`)
 
         if (!response.ok) {
             throw new Error('โหลดไฟล์ Excel ไม่ได้')
@@ -2010,301 +2012,875 @@ function getStat(statRow) {
     /* --- CONTROL -- */
 
     if (controlDecade == 1) {
-        stat.push('controlDecade = 1')
-    } else if (controlDecade <= 10) {
-        stat.push('controlDecade < 10')
-    } else if (controlDecade <= 50) {
-        stat.push('controlDecade < 50')
-    } else if (controlDecade <= 200) {
-        stat.push('controlDecade < 200')
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 4,
+            text: `วันเกิดนี้เป็นวันที่พลังการควบคุมสูงที่สุดในรอบ 10 ปี (ค.ศ. XXXX–XXXX) ซึ่งเป็นวันค่อนข้างหายาก ทำให้จริงจังและคิดถึงหน้าที่มากกว่าปกติ
+                แต่เพราะพลังแรงเกินไป อาจรู้สึกเหมือนเจอแรงกดดันจากภายนอก ถูกคาดหวังเยอะ หรือโดนบังคับจากสถานการณ์ต่างๆ ควรผ่อนคลายและไม่กดตัวเองจนเกินไป`,
+        })
+    } else if (controlDecade <= 30) {
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 16,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังอำนาจสูงติด Top 30 ของค.ศ. XXXX-XXXX
+                ทำให้จริงจัง รับผิดชอบ และระวังตัวมาก
+                แต่พลังนี้มากเกินไปอาจรู้สึกเหมือนถูกบังคับ กดดันจากภายนอก หรือเจอคำวิจารณ์ง่าย ควรอย่าตึงเกินไปและรู้จักปล่อยวางบ้าง`,
+        })
+    } else if (controlDecade <= 150) {
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 34,
+        })
     } else if (controlDecade <= 500) {
-        stat.push('controlDecade < 500')
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 46,
+        })
     } else if (controlDecade >= 3000) {
-        stat.push('controlDecade >= 3000')
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 64,
+        })
     } else if (controlDecade >= 2500) {
-        stat.push('controlDecade >= 2500')
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 82,
+        })
     } else if (controlDecade >= 2000) {
-        stat.push('controlDecade >= 2000')
+        stat.push({
+            type: 'control',
+            timeline: 'decade',
+            rank: 'least2000',
+            score: 100,
+        })
     }
 
     if (controlYear == 1) {
-        stat.push('controlYear = 1')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'top1',
+            score: 10,
+        })
     } else if (controlYear <= 10) {
-        stat.push('controlYear < 10')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'top10',
+            score: 22,
+        })
     } else if (controlYear <= 25) {
-        stat.push('controlYear < 25')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'top25',
+            score: 40,
+        })
     } else if (controlYear <= 50) {
-        stat.push('controlYear < 50')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'top50',
+            score: 52,
+        })
     } else if (controlYear >= 300) {
-        stat.push('controlYear >= 300')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'least300',
+            score: 70,
+        })
     } else if (controlYear >= 250) {
-        stat.push('controlYear >= 250')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'least250',
+            score: 88,
+        })
     } else if (controlYear >= 200) {
-        stat.push('controlYear >= 200')
+        stat.push({
+            type: 'control',
+            timeline: 'year',
+            rank: 'least200',
+            score: 106,
+        })
     }
 
     if (controlMonth == 1) {
-        stat.push('controlMonth = 1')
-    } else if (controlMonth <= 3) {
-        stat.push('controlMonth < 3')
+        stat.push({
+            type: 'control',
+            timeline: 'month',
+            rank: 'top1',
+            score: 28,
+        })
     } else if (controlMonth <= 5) {
-        stat.push('controlMonth < 5')
+        stat.push({
+            type: 'control',
+            timeline: 'month',
+            rank: 'top5',
+            score: 58,
+        })
     } else if (controlMonth <= 10) {
-        stat.push('controlMonth < 10')
-    } else if (controlMonth >= 20) {
-        stat.push('controlMonth >= 20')
+        stat.push({
+            type: 'control',
+            timeline: 'month',
+            rank: 'top10',
+            score: 76,
+        })
     } else if (controlMonth >= 25) {
-        stat.push('controlMonth >= 25')
+        stat.push({
+            type: 'control',
+            timeline: 'month',
+            rank: 'least25',
+            score: 94,
+        })
+    } else if (controlMonth >= 20) {
+        stat.push({
+            type: 'control',
+            timeline: 'month',
+            rank: 'least20',
+            score: 112,
+        })
     }
 
     /* --- WEALTH -- */
 
     if (wealthDecade == 1) {
-        stat.push('wealthDecade = 1')
-    } else if (wealthDecade <= 10) {
-        stat.push('wealthDecade < 10')
-    } else if (wealthDecade <= 50) {
-        stat.push('wealthDecade < 50')
-    } else if (wealthDecade <= 200) {
-        stat.push('wealthDecade < 200')
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 5,
+            text: `วันเกิดนี้เป็นวันที่พลังด้านผลประโยชน์และการเงินสูงที่สุดในรอบ 10 ปี (ค.ศ. XXXX–XXXX) เป็นวันที่เจอไม่บ่อย ทำให้โฟกัสเรื่องรายได้ การใช้แรงเพื่อให้ได้ผลตอบแทนชัดเจนขึ้น
+                แต่เมื่อพลังมากเกินไป อาจทำให้คิดแต่เรื่องเงิน หรือกังวลผลประโยชน์มากไปจนลืมเรื่องอื่น ควรรักษาสมดุลระหว่างงาน เงิน และชีวิตส่วนตัว`,
+        })
+    } else if (wealthDecade <= 30) {
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 17,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังทรัพย์สูงติด Top 30 ของค.ศ. XXXX–XXXX
+                จึงมักคิดเรื่องผลตอบแทนหรือการจัดการเงินอยู่เสมอ
+                แต่ถ้ามากไปอาจกลายเป็นคิดแต่เรื่องเงินจนลืมเรื่องอื่น หรือเหนื่อยกับความคาดหวังของตัวเอง ควรผ่อนคลายและแบ่งเวลาให้สมดุล`,
+        })
+    } else if (wealthDecade <= 150) {
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 35,
+        })
     } else if (wealthDecade <= 500) {
-        stat.push('wealthDecade < 500')
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 47,
+        })
     } else if (wealthDecade >= 3000) {
-        stat.push('wealthDecade >= 3000')
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 65,
+        })
     } else if (wealthDecade >= 2500) {
-        stat.push('wealthDecade >= 2500')
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 83,
+        })
     } else if (wealthDecade >= 2000) {
-        stat.push('wealthDecade >= 2000')
+        stat.push({
+            type: 'wealth',
+            timeline: 'decade',
+            rank: 'least2000',
+            score: 101,
+        })
     }
 
     if (wealthYear == 1) {
-        stat.push('wealthYear = 1')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'top1',
+            score: 11,
+        })
     } else if (wealthYear <= 10) {
-        stat.push('wealthYear < 10')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'top10',
+            score: 23,
+        })
     } else if (wealthYear <= 25) {
-        stat.push('wealthYear < 25')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'top25',
+            score: 41,
+        })
     } else if (wealthYear <= 50) {
-        stat.push('wealthYear < 50')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'top50',
+            score: 53,
+        })
     } else if (wealthYear >= 300) {
-        stat.push('wealthYear >= 300')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'least300',
+            score: 71,
+        })
     } else if (wealthYear >= 250) {
-        stat.push('wealthYear >= 250')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'least250',
+            score: 89,
+        })
     } else if (wealthYear >= 200) {
-        stat.push('wealthYear >= 200')
+        stat.push({
+            type: 'wealth',
+            timeline: 'year',
+            rank: 'least200',
+            score: 107,
+        })
     }
 
     if (wealthMonth == 1) {
-        stat.push('wealthMonth = 1')
-    } else if (wealthMonth <= 3) {
-        stat.push('wealthMonth < 3')
+        stat.push({
+            type: 'wealth',
+            timeline: 'month',
+            rank: 'top1',
+            score: 29,
+        })
     } else if (wealthMonth <= 5) {
-        stat.push('wealthMonth < 5')
+        stat.push({
+            type: 'wealth',
+            timeline: 'month',
+            rank: 'top5',
+            score: 59,
+        })
     } else if (wealthMonth <= 10) {
-        stat.push('wealthMonth < 10')
-    } else if (wealthMonth >= 20) {
-        stat.push('wealthMonth >= 20')
+        stat.push({
+            type: 'wealth',
+            timeline: 'month',
+            rank: 'top10',
+            score: 77,
+        })
     } else if (wealthMonth >= 25) {
-        stat.push('wealthMonth >= 25')
+        stat.push({
+            type: 'wealth',
+            timeline: 'month',
+            rank: 'least25',
+            score: 95,
+        })
+    } else if (wealthMonth >= 20) {
+        stat.push({
+            type: 'wealth',
+            timeline: 'month',
+            rank: 'least20',
+            score: 113,
+        })
     }
 
     /* --- OUTPUT -- */
 
     if (outputDecade == 1) {
-        stat.push('outputDecade = 1')
-    } else if (outputDecade <= 10) {
-        stat.push('outputDecade < 10')
-    } else if (outputDecade <= 50) {
-        stat.push('outputDecade < 50')
-    } else if (outputDecade <= 200) {
-        stat.push('outputDecade < 200')
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 6,
+            text: `วันเกิดนี้เป็นวันที่พลังการแสดงออกสูงที่สุดในรอบ 10 ปี (ค.ศ. XXXX–XXXX) ซึ่งถือว่าเป็นวันหายาก ทำให้คิดไว พูดไว หรืออยากลงมือทำหลายอย่างพร้อมกัน
+                แต่เพราะพลังล้น อาจทำให้ใจร้อน คิดเยอะเกินเหตุ หรือทำอะไรไม่จบ ควรรอบคอบและค่อยๆทำทีละอย่าง`,
+        })
+    } else if (outputDecade <= 30) {
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 18,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังการแสดงออกสูงติด Top 30 ของค.ศ. XXXX–XXXX
+                ทำให้คิดไว พูดไว มีไอเดียเยอะสลับบ่อย
+                แต่เพราะพลังล้น อาจทำให้ใจเร็ว พูดมากไป หรือทำหลายอย่างพร้อมกันจนไม่จบ ควรจัดลำดับให้ชัดขึ้น`,
+        })
+    } else if (outputDecade <= 150) {
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 36,
+        })
     } else if (outputDecade <= 500) {
-        stat.push('outputDecade < 500')
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 48,
+        })
     } else if (outputDecade >= 3000) {
-        stat.push('outputDecade >= 3000')
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 66,
+        })
     } else if (outputDecade >= 2500) {
-        stat.push('outputDecade >= 2500')
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 84,
+        })
     } else if (outputDecade >= 2000) {
-        stat.push('outputDecade >= 2000')
+        stat.push({
+            type: 'output',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 102,
+        })
     }
 
     if (outputYear == 1) {
-        stat.push('outputYear = 1')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'top1',
+            score: 12,
+        })
     } else if (outputYear <= 10) {
-        stat.push('outputYear < 10')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'top10',
+            score: 24,
+        })
     } else if (outputYear <= 25) {
-        stat.push('outputYear < 25')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'top25',
+            score: 42,
+        })
     } else if (outputYear <= 50) {
-        stat.push('outputYear < 50')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'top50',
+            score: 54,
+        })
     } else if (outputYear >= 300) {
-        stat.push('outputYear >= 300')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'least300',
+            score: 72,
+        })
     } else if (outputYear >= 250) {
-        stat.push('outputYear >= 250')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'least250',
+            score: 90,
+        })
     } else if (outputYear >= 200) {
-        stat.push('outputYear >= 200')
+        stat.push({
+            type: 'output',
+            timeline: 'year',
+            rank: 'least200',
+            score: 108,
+        })
     }
 
     if (outputMonth == 1) {
-        stat.push('outputMonth = 1')
-    } else if (outputMonth <= 3) {
-        stat.push('outputMonth < 3')
+        stat.push({
+            type: 'output',
+            timeline: 'month',
+            rank: 'top1',
+            score: 30,
+        })
     } else if (outputMonth <= 5) {
-        stat.push('outputMonth < 5')
+        stat.push({
+            type: 'output',
+            timeline: 'month',
+            rank: 'top5',
+            score: 60,
+        })
     } else if (outputMonth <= 10) {
-        stat.push('outputMonth < 10')
-    } else if (outputMonth >= 20) {
-        stat.push('outputMonth >= 20')
+        stat.push({
+            type: 'output',
+            timeline: 'month',
+            rank: 'top10',
+            score: 78,
+        })
     } else if (outputMonth >= 25) {
-        stat.push('outputMonth >= 25')
+        stat.push({
+            type: 'output',
+            timeline: 'month',
+            rank: 'least25',
+            score: 96,
+        })
+    } else if (outputMonth >= 20) {
+        stat.push({
+            type: 'output',
+            timeline: 'month',
+            rank: 'least20',
+            score: 114,
+        })
     }
 
     /* --- SUPPORT -- */
 
     if (supportDecade == 1) {
-        stat.push('supportDecade = 1')
-    } else if (supportDecade <= 10) {
-        stat.push('supportDecade < 10')
-    } else if (supportDecade <= 50) {
-        stat.push('supportDecade < 50')
-    } else if (supportDecade <= 200) {
-        stat.push('supportDecade < 200')
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 3,
+            text: `วันเกิดนี้เป็นวันที่พลังสนับสนุนขึ้นสูงสุดในรอบ 10 ปี (ค.ศ. XXXX–XXXX) ซึ่งเป็นช่วงวันที่ไม่ค่อยเจอกันบ่อยนัก จึงมักได้รับการช่วยเหลือหรือการสนับสนุนมากกว่าปกติ
+                แต่เพราะแรงสนับสนุนเยอะเกินไป อาจทำให้พึ่งพาคนอื่นง่าย หรือทำให้เคยชินกับการมีคนช่วย ควรฝึกจัดการเรื่องต่างๆ ด้วยตัวเองให้มากขึ้น`,
+        })
+    } else if (supportDecade <= 30) {
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 15,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังตัวตนสูงติด Top 30 ของ ค.ศ. XXXX-XXXX
+                ทำให้ความเป็นตัวเองเด่นชัดขึ้น กล้าคิดกล้าตัดสินใจ
+                แต่เพราะพลังตัวตนมาก อาจกลายเป็นดื้อ มองมุมเดียว หรือไม่ค่อยฟังคนอื่น ควรลดแรงปะทะและรับฟังเพิ่มขึ้น`,
+        })
+    } else if (supportDecade <= 150) {
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 33,
+        })
     } else if (supportDecade <= 500) {
-        stat.push('supportDecade < 500')
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 45,
+        })
     } else if (supportDecade >= 3000) {
-        stat.push('supportDecade >= 3000')
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 63,
+        })
     } else if (supportDecade >= 2500) {
-        stat.push('supportDecade >= 2500')
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 81,
+        })
     } else if (supportDecade >= 2000) {
-        stat.push('supportDecade >= 2000')
+        stat.push({
+            type: 'support',
+            timeline: 'decade',
+            rank: 'least2000',
+            score: 99,
+        })
     }
 
     if (supportYear == 1) {
-        stat.push('supportYear = 1')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'top1',
+            score: 9,
+        })
     } else if (supportYear <= 10) {
-        stat.push('supportYear < 10')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'top10',
+            score: 21,
+        })
     } else if (supportYear <= 25) {
-        stat.push('supportYear < 25')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'top25',
+            score: 39,
+        })
     } else if (supportYear <= 50) {
-        stat.push('supportYear < 50')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'top50',
+            score: 51,
+        })
     } else if (supportYear >= 300) {
-        stat.push('supportYear >= 300')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'least300',
+            score: 69,
+        })
     } else if (supportYear >= 250) {
-        stat.push('supportYear >= 250')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'least250',
+            score: 87,
+        })
     } else if (supportYear >= 200) {
-        stat.push('supportYear >= 200')
+        stat.push({
+            type: 'support',
+            timeline: 'year',
+            rank: 'least200',
+            score: 105,
+        })
     }
 
     if (supportMonth == 1) {
-        stat.push('supportMonth = 1')
-    } else if (supportMonth <= 3) {
-        stat.push('supportMonth < 3')
+        stat.push({
+            type: 'support',
+            timeline: 'month',
+            rank: 'top1',
+            score: 27,
+        })
     } else if (supportMonth <= 5) {
-        stat.push('supportMonth < 5')
+        stat.push({
+            type: 'support',
+            timeline: 'month',
+            rank: 'top5',
+            score: 57,
+        })
     } else if (supportMonth <= 10) {
-        stat.push('supportMonth < 10')
-    } else if (supportMonth >= 20) {
-        stat.push('supportMonth >= 20')
+        stat.push({
+            type: 'support',
+            timeline: 'month',
+            rank: 'top10',
+            score: 75,
+        })
     } else if (supportMonth >= 25) {
-        stat.push('supportMonth >= 25')
+        stat.push({
+            type: 'support',
+            timeline: 'month',
+            rank: 'least25',
+            score: 93,
+        })
+    } else if (supportMonth >= 20) {
+        stat.push({
+            type: 'support',
+            timeline: 'month',
+            rank: 'least20',
+            score: 111,
+        })
     }
 
     /* --- SELF -- */
 
     if (selfDecade == 1) {
-        stat.push('selfDecade = 1')
-    } else if (selfDecade <= 10) {
-        stat.push('selfDecade < 10')
-    } else if (selfDecade <= 50) {
-        stat.push('selfDecade < 50')
-    } else if (selfDecade <= 200) {
-        stat.push('selfDecade < 200')
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 2,
+            text: `วันเกิดของคุณ XX/XX/XXXX เป็นวันที่พลังตัวตนขึ้นสูงที่สุดในรอบ 10 ปี (ค.ศ. XXXX–XXXX) เป็นวันที่ค่อนข้างหายาก ทำให้ความมั่นใจและความคิดของตัวเองเด่นชัดมาก แต่เพราะพลังล้น อาจกลายเป็นดื้อ เอาแต่ใจ หรือไม่ค่อยฟังคนอื่น ควรตั้งสติและเปิดใจรับมุมมองรอบข้างมากขึ้น`,
+        })
+    } else if (selfDecade <= 30) {
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 14,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังสนับสนุนสูงติด Top 30 ของค.ศ. XXXX-XXXX
+                ชีวิตมักมีคนช่วย หรือได้โอกาสง่ายกว่าปกติ
+                แต่เพราะมีแรงหนุนเยอะ อาจเผลอพึ่งคนอื่นมากไป หรือไม่ค่อยลงมือเอง ควรฝึกรับผิดชอบและทำด้วยตัวเองให้มากขึ้น`,
+        })
+    } else if (selfDecade <= 150) {
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 32,
+        })
     } else if (selfDecade <= 500) {
-        stat.push('selfDecade < 500')
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 44,
+        })
     } else if (selfDecade >= 3000) {
-        stat.push('selfDecade >= 3000')
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 62,
+        })
     } else if (selfDecade >= 2500) {
-        stat.push('selfDecade >= 2500')
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 80,
+        })
     } else if (selfDecade >= 2000) {
-        stat.push('selfDecade >= 2000')
+        stat.push({
+            type: 'self',
+            timeline: 'decade',
+            rank: 'least2000',
+            score: 98,
+        })
     }
 
     if (selfYear == 1) {
-        stat.push('selfYear = 1')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'top1',
+            score: 8,
+        })
     } else if (selfYear <= 10) {
-        stat.push('selfYear < 10')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'top10',
+            score: 20,
+        })
     } else if (selfYear <= 25) {
-        stat.push('selfYear < 25')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'top25',
+            score: 38,
+        })
     } else if (selfYear <= 50) {
-        stat.push('selfYear < 50')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'top50',
+            score: 50,
+        })
     } else if (selfYear >= 300) {
-        stat.push('selfYear >= 300')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'least300',
+            score: 68,
+        })
     } else if (selfYear >= 250) {
-        stat.push('selfYear >= 250')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'least250',
+            score: 86,
+        })
     } else if (selfYear >= 200) {
-        stat.push('selfYear >= 200')
+        stat.push({
+            type: 'self',
+            timeline: 'year',
+            rank: 'least200',
+            score: 104,
+        })
     }
 
     if (selfMonth == 1) {
-        stat.push('selfMonth = 1')
-    } else if (selfMonth <= 3) {
-        stat.push('selfMonth < 3')
+        stat.push({
+            type: 'self',
+            timeline: 'month',
+            rank: 'top1',
+            score: 26,
+        })
     } else if (selfMonth <= 5) {
-        stat.push('selfMonth < 5')
+        stat.push({
+            type: 'self',
+            timeline: 'month',
+            rank: 'top5',
+            score: 56,
+        })
     } else if (selfMonth <= 10) {
-        stat.push('selfMonth < 10')
-    } else if (selfMonth >= 20) {
-        stat.push('selfMonth >= 20')
+        stat.push({
+            type: 'self',
+            timeline: 'month',
+            rank: 'top10',
+            score: 74,
+        })
     } else if (selfMonth >= 25) {
-        stat.push('selfMonth >= 25')
+        stat.push({
+            type: 'self',
+            timeline: 'month',
+            rank: 'least25',
+            score: 92,
+        })
+    } else if (selfMonth >= 20) {
+        stat.push({
+            type: 'self',
+            timeline: 'month',
+            rank: 'least20',
+            score: 110,
+        })
     }
 
     /* --- BALANCE -- */
 
     if (balanceDecade == 1) {
-        stat.push('balanceDecade = 1')
-    } else if (balanceDecade <= 10) {
-        stat.push('balanceDecade < 10')
-    } else if (balanceDecade <= 50) {
-        stat.push('balanceDecade < 50')
-    } else if (balanceDecade <= 200) {
-        stat.push('balanceDecade < 200')
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'top1',
+            score: 1,
+            text: `วันเกิดที่พลังทั้ง 5 ธาตุสมดุล ไม่มีด้านใดล้นหรือขาด เหมาะกับการใช้ชีวิตแบบเรียบง่ายและมั่นคง พลังสมดุลที่สุดในรอบ 10 ปี ให้ความรู้สึกลงตัว ไม่สุดโต่ง`,
+        })
+    } else if (balanceDecade <= 30) {
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'top30',
+            score: 13,
+            text: `วันเกิด XX/XX/XXXX อยู่ในกลุ่มวันที่พลังทั้งห้าด้านค่อนข้างสมดุลติด Top 30 ของค.ศ. XXXX-XXXX
+                จึงไม่เด่นด้านใดเป็นพิเศษ แต่ภาพรวมค่อนข้างนิ่ง เรียบง่าย และปรับตัวได้ดี
+                อย่างไรก็ตาม วันแบบนี้มักขาดแรงผลักดัน จึงควรกระตุ้นตัวเองให้มีเป้าหมายชัดขึ้น`,
+        })
+    } else if (balanceDecade <= 150) {
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'top150',
+            score: 31,
+        })
     } else if (balanceDecade <= 500) {
-        stat.push('balanceDecade < 500')
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'top500',
+            score: 43,
+        })
     } else if (balanceDecade >= 3000) {
-        stat.push('balanceDecade >= 3000')
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'least3000',
+            score: 61,
+        })
     } else if (balanceDecade >= 2500) {
-        stat.push('balanceDecade >= 2500')
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'least2500',
+            score: 79,
+        })
     } else if (balanceDecade >= 2000) {
-        stat.push('balanceDecade >= 2000')
+        stat.push({
+            type: 'balance',
+            timeline: 'decade',
+            rank: 'least2000',
+            score: 97,
+        })
     }
 
     if (balanceYear == 1) {
-        stat.push('balanceYear = 1')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'top1',
+            score: 7,
+        })
     } else if (balanceYear <= 10) {
-        stat.push('balanceYear < 10')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'top10',
+            score: 19,
+        })
     } else if (balanceYear <= 25) {
-        stat.push('balanceYear < 25')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'top25',
+            score: 37,
+        })
     } else if (balanceYear <= 50) {
-        stat.push('balanceYear < 50')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'top50',
+            score: 49,
+        })
     } else if (balanceYear >= 300) {
-        stat.push('balanceYear >= 300')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'least300',
+            score: 67,
+        })
     } else if (balanceYear >= 250) {
-        stat.push('balanceYear >= 250')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'least250',
+            score: 85,
+        })
     } else if (balanceYear >= 200) {
-        stat.push('balanceYear >= 200')
+        stat.push({
+            type: 'balance',
+            timeline: 'year',
+            rank: 'least200',
+            score: 103,
+        })
     }
 
     if (balanceMonth == 1) {
-        stat.push('balanceMonth = 1')
-    } else if (balanceMonth <= 3) {
-        stat.push('balanceMonth < 3')
+        stat.push({
+            type: 'balance',
+            timeline: 'month',
+            rank: 'top1',
+            score: 25,
+        })
     } else if (balanceMonth <= 5) {
-        stat.push('balanceMonth < 5')
+        stat.push({
+            type: 'balance',
+            timeline: 'month',
+            rank: 'top5',
+            score: 55,
+        })
     } else if (balanceMonth <= 10) {
-        stat.push('balanceMonth < 10')
-    } else if (balanceMonth >= 20) {
-        stat.push('balanceMonth >= 20')
+        stat.push({
+            type: 'balance',
+            timeline: 'month',
+            rank: 'top10',
+            score: 73,
+        })
     } else if (balanceMonth >= 25) {
-        stat.push('balanceMonth >= 25')
+        stat.push({
+            type: 'balance',
+            timeline: 'month',
+            rank: 'least25',
+            score: 91,
+        })
+    } else if (balanceMonth >= 20) {
+        stat.push({
+            type: 'balance',
+            timeline: 'month',
+            rank: 'least20',
+            score: 109,
+        })
     }
 
     const info = {

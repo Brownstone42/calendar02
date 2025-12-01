@@ -132,6 +132,12 @@
                     `ธาตุประจำตัว ${info.dayMaster} (${personalText.strength})`
                 }}</span>
                 <span class="mb-4">{{ `${personalText.text}` }}</span>
+                <span class="mb-4">จุดที่น่าสนใจ</span>
+
+                <span v-for="stat in sortedStat" class="mb-4">
+                    {{ `(${stat.rank}-${stat.type}-${stat.timeline}) : ${stat.text}` }}
+                </span>
+
                 <span class="mb-4">{{ `ควรแก้ด้วย ${fix.element} - ${fix.direction}` }}</span>
                 <span>{{ `ควรหลีกเลี่ยง ${avoid.element} - ${avoid.direction}` }}</span>
             </div>
@@ -147,7 +153,7 @@ import { useSessionStore } from '@/stores/session'
 import progressBar from '@/components/common/progressBar.vue'
 import circleZodiac from '@/components/monthly/circleZodiac.vue'
 import balanceBar from '@/components/common/balanceBar.vue'
-import balanceBar2 from '@/components/common/ิbalanceBar2.vue'
+import balanceBar2 from '@/components/common/balanceBar2.vue'
 
 export default {
     name: 'Monthly',
@@ -194,6 +200,7 @@ export default {
             clashMonths: [],
             dangerPast: [],
             dangerFuture: [],
+            sortedStat: [],
         }
     },
     mounted() {
@@ -457,6 +464,9 @@ export default {
 
             console.log(stat)
 
+            const sortedStat = this.getLowestScoreByType(stat.group)
+            console.log(sortedStat)
+
             this.tranformedScore = tranformedScore
             this.currentTransformedScore = currentTransformScore
             this.dayBlossomCount = dayBlossomCount
@@ -471,6 +481,18 @@ export default {
             this.personalText = personalText
             this.fix = fix
             this.avoid = avoid
+            this.sortedStat = sortedStat
+        },
+        getLowestScoreByType(arr) {
+            const map = {}
+
+            arr.forEach((item) => {
+                if (!map[item.type] || item.score < map[item.type].score) {
+                    map[item.type] = item
+                }
+            })
+
+            return Object.values(map).sort((a, b) => a.score - b.score)
         },
     },
 }

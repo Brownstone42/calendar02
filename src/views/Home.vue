@@ -33,7 +33,7 @@ export default {
     components: { birthdayInput },
     data() {
         return {
-            birthday: '1989-08-26',
+            birthday: '1993-10-07',
             tabs: [
                 { key: 'monthly', label: 'Monthly' },
                 { key: 'compass', label: 'Compass' },

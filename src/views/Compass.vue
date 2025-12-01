@@ -49,7 +49,7 @@
             <div :class="['slider-wrap', { visible: showFallback }]">
                 <span>Desktop demo</span>
                 <input v-model.number="sim" type="range" min="0" max="360" step="1" />
-                <span>{{ sim }}°</span>
+                <span style="width: 50px">{{ sim }}°</span>
             </div>
 
             <div v-if="sessionStore.birthday">
@@ -133,6 +133,7 @@ export default {
             if (deg >= 292.5 && deg < 337.5) direction = 'Northwest'
 
             const result = calculator.getDirectionSuggest(this.score, this.favorite, direction)
+
             this.result = result
         },
         fetchData() {
@@ -179,12 +180,15 @@ export default {
                 this._lastLoggedDeg = rounded
             }
 
+            //console.log('Compass Degree:', rounded)
+
             if (this.lastRaw === null) {
                 this.lastRaw = raw
                 this.dialAngle = -sm
                 return
             }
             const delta = this.shortestDelta(this.lastRaw, raw)
+
             this.lastRaw = raw
             this.dialAngle -= delta
         },
@@ -274,6 +278,7 @@ export default {
         },
         _lastLoggedDeg(newVal, oldVal) {
             if (newVal !== oldVal) {
+                console.log('Heading Changed To:', newVal)
                 this.getDirection(newVal)
             }
         },
