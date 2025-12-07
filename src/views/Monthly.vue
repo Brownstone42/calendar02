@@ -452,7 +452,7 @@ export default {
             const avoid = calculator.getAvoid(favorite, score, personal)
 
             const statRow = await calculator.getStatRow(birthday)
-            const stat = calculator.getStat(statRow)
+            const stat = await calculator.getStat(statRow)
 
             /*console.log(personalText)
             console.log(clashResult)
