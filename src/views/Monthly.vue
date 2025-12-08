@@ -135,7 +135,7 @@
                 <span class="mb-4">จุดที่น่าสนใจ</span>
 
                 <span v-for="stat in sortedStat" class="mb-4">
-                    {{ `(${stat.rank}-${stat.type}-${stat.timeline}) : ${stat.text}` }}
+                    {{ `(${stat.name}-${stat.type}-${stat.timeline}) : ${stat.text}` }}
                 </span>
 
                 <span class="mb-4">{{ `ควรแก้ด้วย ${fix.element} - ${fix.direction}` }}</span>
